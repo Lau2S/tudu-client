@@ -23,6 +23,7 @@ async function loadView(name) {
 
   if (name === 'home') initHome();
   if (name === 'board') initBoard();
+  if (name === 'signup') initSignup();
 }
 
 /**
@@ -40,7 +41,7 @@ export function initRouter() {
  */
 function handleRoute() {
   const path = (location.hash.startsWith('#/') ? location.hash.slice(2) : '') || 'home';
-  const known = ['home', 'board'];
+  const known = ['home', 'board', 'signup'];
   const route = known.includes(path) ? path : 'home';
 
   loadView(route).catch(err => {
@@ -56,6 +57,10 @@ function handleRoute() {
  * Attaches a submit handler to the register form to navigate to the board.
  */
 function initHome() {
+  
+}
+
+function initSignup() {
   const form = document.getElementById('registerForm');
   const userInput = document.getElementById('username');
   const passInput = document.getElementById('password');
