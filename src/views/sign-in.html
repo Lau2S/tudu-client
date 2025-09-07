@@ -1,0 +1,29 @@
+<main class="main">
+  <div class="logo">
+    <img src="/public/logo_tudu.png" alt="Logo de Tudu" class="login-logo">
+  </div>
+
+  <form class="registration-card" action="/login" method="POST">
+    <div>
+      <h2 class="form-title">Iniciar sesión</h2>
+      <p class="form-subtitle">Ingresa tus datos para acceder a tus tareas</p>
+    </div>
+
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" placeholder="Ingrese su email" required>
+
+    <label for="password">Contraseña</label>
+    <input type="password" id="password" name="password" placeholder="Ingrese su contraseña" required>
+
+    <button type="submit">Iniciar sesión</button>
+
+    <div class="sign-in-footer">
+      <p>¿No tienes una cuenta? <a href="#/sign-up">Regístrate</a></p>
+    </div>
+  </form>
+
+</main>
+
+<footer class="footer">
+  <p>©2025 Tudu. Todos los derechos reservados &nbsp;&nbsp;&nbsp; Mapa del Sitio</p>
+</footer>

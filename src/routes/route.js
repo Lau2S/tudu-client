@@ -23,7 +23,8 @@ async function loadView(name) {
 
   if (name === 'home') initHome();
   if (name === 'board') initBoard();
-  if (name === 'signup') initSignup();
+  if (name === 'sign-up') initSignup();
+  if (name === 'sign-in') initSignin();
 }
 
 /**
@@ -41,7 +42,7 @@ export function initRouter() {
  */
 function handleRoute() {
   const path = (location.hash.startsWith('#/') ? location.hash.slice(2) : '') || 'home';
-  const known = ['home', 'board','sing-in', 'sing-up'];
+  const known = ['home', 'board','sign-in', 'sign-up'];
   const route = known.includes(path) ? path : 'home';
 
   loadView(route).catch(err => {
@@ -93,6 +94,10 @@ function initSignup() {
       form.querySelector('button[type="submit"]').disabled = false;
     }
   });
+}
+
+function initSignin() {
+
 }
 
 /**
