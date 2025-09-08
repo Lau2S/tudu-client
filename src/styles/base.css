@@ -246,6 +246,224 @@ a:hover {
   font-size: 0.875rem;
 }
 
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    padding: 10px 14px;
+    border-radius: 24px;
+    transition: background-color 0.2s ease;
+}
+
+.user-profile:hover {
+    background-color: rgba(1, 171, 83, 0.1);
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #2d3436;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.user-name {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-color);
+    opacity: 0.80;
+}
+
+.dropdown-arrow {
+    font-size: 12px;
+    color: #6c757d;
+    margin-left: 4px;
+}
+
+.main-dashboard {
+    padding: 32px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.create-task-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    z-index: 100;
+}
+
+.create-task-btn:hover {
+    transform: translateY(-2px);
+    background-color: var(--primary-hover);
+    color: white;
+}
+
+.kanban-board {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 24px;
+}
+
+.kanban-column {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 24px;
+    min-height: 600px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    border-top: 5px solid;
+}
+
+.pending-column {
+    border-top-color: #ffc107;
+}
+
+.progress-column {
+    border-top-color: #02AB8D;
+}
+
+.completed-column {
+    border-top-color: #2BAB02;
+}
+
+.column-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #f1f3f4;
+}
+
+.column-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-base);
+    color: white;
+}
+
+.pending-column .column-icon {
+    background-color: #ffc107;
+}
+
+.progress-column .column-icon {
+    background-color: #02AB8D;
+}
+
+.completed-column .column-icon {
+    background-color: #2BAB02;
+}
+
+.column-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.column-count {
+    background-color: #e9ecef;
+    color: #6c757d;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    margin-left: auto;
+}
+
+.task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.task-card {
+    background: var(--background-color);
+    border: 1px solid #e9ecef;
+    border-radius: var(--border-radius);
+    padding: 20px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.task-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.task-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-color);
+    opacity: 0.80;
+    margin-bottom: 10px;
+}
+
+.task-description {
+    font-size: 14px;
+    color: var(--text-color);
+    opacity: 0.60;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.task-datetime {
+    font-size: 12px;
+    color: var(--text-color);
+    opacity: 0.40;
+    margin-bottom: 12px;
+}
+
+.task-options {
+    position: absolute;
+    top: 16px;
+    right: 10px;
+    display: flex;
+    gap: 7px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.task-card:hover .task-options {
+    opacity: 1;
+}
+
+.task-option-btn {
+    background-color: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    padding: 0;
+}
+
+.task-option-btn:hover {
+    background-color: transparent;
+    border: none;
+}
+
+
+
 @media (prefers-color-scheme: dark) {
     :root {
         --background-color: #121212;

@@ -25,6 +25,7 @@ async function loadView(name) {
   if (name === 'board') initBoard();
   if (name === 'sign-up') initSignup();
   if (name === 'sign-in') initSignin();
+  if (name === 'dashboard') initDashboard();
 }
 
 /**
@@ -42,7 +43,7 @@ export function initRouter() {
  */
 function handleRoute() {
   const path = (location.hash.startsWith('#/') ? location.hash.slice(2) : '') || 'home';
-  const known = ['home', 'board','sign-in', 'sign-up'];
+  const known = ['home', 'board', 'sign-in', 'sign-up', 'dashboard'];
   const route = known.includes(path) ? path : 'home';
 
   loadView(route).catch(err => {
@@ -97,6 +98,10 @@ function initSignup() {
 }
 
 function initSignin() {
+
+}
+
+function initDashboard() {
 
 }
 

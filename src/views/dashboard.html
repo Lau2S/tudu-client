@@ -15,115 +15,96 @@
   </article>
 </div> -->
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <title>Document</title>
-</head>
-<body>
+<header class="header">
+    <div class="logo">
+        <img src="/public/logo_tudu.png" alt="Tudu Logo"/>
+    </div>
+    <div class="user-profile">
+        <div class="user-avatar">N</div>
+        <span class="user-name">Nombre</span>
+        <span class="dropdown-arrow">▼</span>
+    </div>
+</header>
 
-    <header class="header">
-        <div class="logo">tudu</div>
-        <div class="user-profile">
-            <div class="user-avatar">L</div>
-            <span class="user-name">Laura</span>
-            <span class="dropdown-arrow">▼</span>
+<main class="main-dashboard">
+    <div class="kanban-board">
+        <div class="kanban-column pending-column">
+            <div class="column-header">
+                <div class="column-icon">○</div>
+                <h2 class="column-title">Pendientes</h2>
+                <span class="column-count">2</span>
+            </div>
+            <div class="task-list">
+                <div class="task-card">
+                    <div class="task-options">
+                        <button class="task-option-btn">✏️</button>
+                        <button class="task-option-btn">🗑️</button>
+                    </div>
+                    <div class="task-title">Reunión equipo Integrador</div>
+                    <div class="task-description">Planificar cierre de sprint y revisar que este todo bien</div>
+                    <div class="task-datetime">Fecha: 08 Sep 2025, 5:00 PM</div>
+                </div>
+                <div class="task-card">
+                    <div class="task-options">
+                        <button class="task-option-btn">✏️</button>
+                        <button class="task-option-btn">🗑️</button>
+                    </div>
+                    <div class="task-title">Sprint 2</div>
+                    <div class="task-description">Hacer todas las funcionalidades para el primer Sprint</div>
+                    <div class="task-datetime">Fecha: 17 Sep 2025, 10:00 PM</div>
+                </div>
+            </div>
         </div>
-    </header>
-
-    <main class="main-container">
-        <div class="kanban-board">
-            <!-- Tareas Pendientes -->
-            <div class="kanban-column pending-column">
-                <div class="column-header">
-                    <div class="column-icon">○</div>
-                    <h2 class="column-title">Tareas Pendientes</h2>
-                    <span class="column-count">2</span>
-                </div>
-                <div class="task-list">
-                    <div class="task-card">
-                        <div class="task-actions">
-                            <button class="task-action-btn edit-btn">✏️</button>
-                            <button class="task-action-btn delete-btn">🗑️</button>
-                        </div>
-                        <div class="task-title">Revisar propuesta de proyecto</div>
-                        <div class="task-description">Analizar la propuesta del cliente y preparar feedback detallado</div>
-                        <div class="task-datetime">Fecha: 15 Sep 2025, 10:00 AM</div>
-                    </div>
-                    
-                    <div class="task-card">
-                        <div class="task-actions">
-                            <button class="task-action-btn edit-btn">✏️</button>
-                            <button class="task-action-btn delete-btn">🗑️</button>
-                        </div>
-                        <div class="task-title">Reunión equipo desarrollo</div>
-                        <div class="task-description">Planificar sprint y revisar backlog pendiente</div>
-                        <div class="task-datetime">Fecha: 16 Sep 2025, 2:00 PM</div>
-                    </div>
-                </div>
+        <!-- Tareas en Progreso -->
+        <div class="kanban-column progress-column">
+            <div class="column-header">
+                <div class="column-icon">◔</div>
+                <h2 class="column-title">En Progreso</h2>
+                <span class="column-count">1</span>
             </div>
-
-            <!-- Tareas en Progreso -->
-            <div class="kanban-column progress-column">
-                <div class="column-header">
-                    <div class="column-icon">◐</div>
-                    <h2 class="column-title">Tareas en Progreso</h2>
-                    <span class="column-count">1</span>
-                </div>
-                <div class="task-list">
-                    <div class="task-card">
-                        <div class="task-actions">
-                            <button class="task-action-btn edit-btn">✏️</button>
-                            <button class="task-action-btn delete-btn">🗑️</button>
-                        </div>
-                        <div class="task-title">Desarrollar nueva funcionalidad</div>
-                        <div class="task-description">Implementar sistema de notificaciones push para usuarios</div>
-                        <div class="task-datetime">Fecha: 18 Sep 2025, 9:00 AM</div>
+            <div class="task-list">
+                <div class="task-card">
+                    <div class="task-options">
+                        <button class="task-option-btn">✏️</button>
+                        <button class="task-option-btn">🗑️</button>
                     </div>
-                </div>
-            </div>
-
-            <!-- Tareas Terminadas -->
-            <div class="kanban-column completed-column">
-                <div class="column-header">
-                    <div class="column-icon">✓</div>
-                    <h2 class="column-title">Tareas Terminadas</h2>
-                    <span class="column-count">3</span>
-                </div>
-                <div class="task-list">
-                    <div class="task-card">
-                        <div class="task-actions">
-                            <button class="task-action-btn edit-btn">✏️</button>
-                            <button class="task-action-btn delete-btn">🗑️</button>
-                        </div>
-                        <div class="task-title">Actualizar documentación API</div>
-                        <div class="task-description">Documentar nuevos endpoints y casos de uso</div>
-                        <div class="task-datetime">Completada: 12 Sep 2025</div>
-                    </div>
-                    
-                    <div class="task-card">
-                        <div class="task-actions">
-                            <button class="task-action-btn edit-btn">✏️</button>
-                            <button class="task-action-btn delete-btn">🗑️</button>
-                        </div>
-                        <div class="task-title">Testing funcionalidad login</div>
-                        <div class="task-description">Pruebas unitarias y de integración completadas</div>
-                        <div class="task-datetime">Completada: 10 Sep 2025</div>
-                    </div>
-                    
-                    <div class="task-card">
-                        <div class="task-actions">
-                            <button class="task-action-btn edit-btn">✏️</button>
-                            <button class="task-action-btn delete-btn">🗑️</button>
-                        </div>
-                        <div class="task-title">Diseño interfaz usuario</div>
-                        <div class="task-description">Mockups y prototipos aprobados por el cliente</div>
-                        <div class="task-datetime">Completada: 8 Sep 2025</div>
-                    </div>
+                    <div class="task-title">Terminar Sprint 1</div>
+                    <div class="task-description">Terminar todas las funcionalidades para el primer Sprint</div>
+                    <div class="task-datetime">Fecha: 09 Sep 2025, 10:00 AM</div>
                 </div>
             </div>
         </div>
 
-        <button class="create-task-btn">Crear Tarea</button>
-    </main>
+        <!-- Tareas Terminadas -->
+        <div class="kanban-column completed-column">
+            <div class="column-header">
+                <div class="column-icon">●</div>
+                <h2 class="column-title">Terminadas</h2>
+                <span class="column-count">2</span>
+            </div>
+            <div class="task-list">
+                <div class="task-card">
+                    <div class="task-options">
+                        <button class="task-option-btn">✏️</button>
+                        <button class="task-option-btn">🗑️</button>
+                    </div>
+                    <div class="task-title">Actualizar Taiga</div>
+                    <div class="task-description">Marcar que cosas se han hecho ya en el Taiga</div>
+                    <div class="task-datetime">Completada: 05 Sep 2025</div>
+                </div>
+                    
+                <div class="task-card">
+                    <div class="task-options">
+                        <button class="task-option-btn">✏️</button>
+                        <button class="task-option-btn">🗑️</button>
+                    </div>
+                    <div class="task-title">Registro de Reuniones</div>
+                    <div class="task-description">Tener los registros de las reuniones del equipo</div>
+                    <div class="task-datetime">Completada: 06 Sep 2025</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="create-task-btn">Crear Tarea</button>
+</main>
