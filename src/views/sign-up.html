@@ -3,7 +3,7 @@
     <img src="/public/logo_tudu.png" alt="Logo de Tudu" class="login-logo">
   </div>
   
-  <form  class="registration-card" action="/register">
+  <form  class="registration-card" id = "sing-form" action="/register">
     <div>
       <h2 class="form-title">Registrate</h2>
       <p class="form-subtitle">Ingresa tu información para crear una nueva cuenta</p>
@@ -32,7 +32,7 @@
       <label for="confirm-password">Contraseña</label>
       <input type="password" id="confirm-password" name="password" placeholder="Ingrese su contraseña" required>
 
-      <button type="submit">Continuar</button>
+      <button type="submit" id="sing-button" disabled>Continuar</button>
       <div class="sign-in-footer">
         <p>¿Ya tienes una cuenta? <a href="#/sign-in">Inicia sesión</a></p>
       </div>

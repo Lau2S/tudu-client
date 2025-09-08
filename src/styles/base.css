@@ -6,6 +6,7 @@
     --text-color: #000000;
     --input-color: #e8e8e8;
     --border-radius: 10px;
+    --border-color: #0000001a;
     --spacing: 1rem;
     --font-family: 'Open Sans', sans-serif;
     --font-size-base: 1rem;
@@ -23,29 +24,29 @@ body {
 }
 
 .header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 2rem;
-  background-color: var(--background-color);
-  border-bottom: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: var(--background-color);
+    border-bottom: 1px solid #e9ecef;
 }
 
 .logo img {
-  width: 150px;     
-  height: auto;  
+    width: 150px;
+    height: auto;
 }
 
 
 .main {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: calc(100vh - 140px);
-  color: var(--text-color);
-  margin-top: 1.5rem;
-  padding: var(--spacing);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 140px);
+    color: var(--text-color);
+    margin-top: 1.5rem;
+    padding: var(--spacing);
 }
 
 .nav-buttons {
@@ -89,27 +90,27 @@ body {
 }
 
 .cta-button {
-  display: inline-block;
-  background-color: #01AB53;
-  color: white;
-  padding: 0.85rem 1.5rem;
-  border-radius: 10px;
-  font-weight: 600;
-  text-decoration: none;
+    display: inline-block;
+    background-color: #01AB53;
+    color: white;
+    padding: 0.85rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    text-decoration: none;
 }
 
 .cta-button:hover {
-  background-color: #019a4b;
-  text-decoration: none;
+    background-color: #019a4b;
+    text-decoration: none;
 }
 
 .title {
-  font-size: 4rem;
-  font-weight: 500;
-  font-family : Verdana, sans-serif;
-  margin-bottom: 0.6rem;
-  margin-top: 0rem;
-  max-width: 800px;
+    font-size: 4rem;
+    font-weight: 500;
+    font-family: Verdana, sans-serif;
+    margin-bottom: 0.6rem;
+    margin-top: 0rem;
+    max-width: 800px;
 }
 
 .subtitle {
@@ -128,7 +129,7 @@ body {
     gap: 0.8rem;
     background: var(--background-color);
     border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 16px var(--border-color);
     margin: 1.5rem auto;
     padding: 1.5rem;
     width: 100%;
@@ -179,6 +180,19 @@ h6 {
     color: var(--text-color);
 }
 
+button:disabled{
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    background-color: gray;
+    color: white;
+    cursor: not-allowed;
+    transition: background-color 0.3s;
+}
+button:disabled:hover {
+    background-color: gray;
+    border: none;
+}
 button {
     background-color: var(--text-color);
     color: var(--background-color);
@@ -239,11 +253,11 @@ a:hover {
 }
 
 .footer {
-  background-color: var(--secondary-color);
-  color: white;
-  text-align: center;
-  padding: 1rem;
-  font-size: 0.875rem;
+    background-color: var(--secondary-color);
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    font-size: 0.875rem;
 }
 
 .user-profile {
@@ -321,11 +335,11 @@ a:hover {
 }
 
 .kanban-column {
-    background: white;
+    background: var(--background-color);
     border-radius: var(--border-radius);
     padding: 24px;
     min-height: 600px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 16px var(--border-color);
     border-top: 5px solid;
 }
 
@@ -469,7 +483,7 @@ a:hover {
         --background-color: #121212;
         --text-color: #f5f5f5;
         --input-color: #1e1e1e;
+        --border-color: #f5f5f5;
         --secondary-color: #015028;
     }
 }
-
