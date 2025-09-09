@@ -275,22 +275,64 @@ function initDashboard() {
 
   console.log('Dashboard inicializado para usuario:', getCurrentUser());
 
-  // Buscar botón de logout si existe
-  const logoutBtn = document.getElementById('logoutBtn') || document.querySelector('[data-action="logout"]');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      try {
-        await logoutUser();
-        console.log('Logout exitoso');
-      } catch (error) {
-        console.error('Error durante logout:', error);
-        // Aún así limpiar y redirigir
-        localStorage.clear();
-        location.hash = '#/sign-in';
-      }
+  // ---------------------------
+  // MENÚ DESPLEGABLE DE USUARIO CON LOGOUT
+  // ---------------------------
+  const userProfile = document.querySelector('.user-profile');
+  if (userProfile) {
+    const dropdownMenu = userProfile.querySelector('.user-dropdown');
+
+    // Mostrar/ocultar menú al hacer clic
+    userProfile.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdownMenu.classList.toggle('active');
+      userProfile.classList.toggle('active'); // Flecha gira
     });
+
+    // Cerrar menú al hacer clic fuera
+    document.addEventListener('click', () => {
+      dropdownMenu.classList.remove('active');
+      userProfile.classList.remove('active');
+    });
+
+    // Opciones del menú
+    const profileOption = document.getElementById('profileOption');
+    const logoutOption = document.getElementById('logoutOption');
+
+    if (profileOption) {
+      profileOption.addEventListener('click', () => {
+        alert('Ir a perfil'); // Aquí puedes redirigir a tu página de perfil
+        dropdownMenu.classList.remove('active');
+        userProfile.classList.remove('active');
+      });
+    }
+
+    if (logoutOption) {
+      logoutOption.addEventListener('click', async () => {
+        try {
+          // Llamada a tu servicio real de logout
+          await logoutUser(); // Debe limpiar token y sesión en backend
+          console.log('Logout exitoso');
+
+          // Limpiar almacenamiento local y sesión
+          localStorage.clear();
+          sessionStorage.clear();
+
+          // Redirigir al login
+          location.hash = '#/sign-in';
+        } catch (error) {
+          console.error('Error durante logout:', error);
+          localStorage.clear();
+          sessionStorage.clear();
+          location.hash = '#/sign-in';
+        }
+      });
+    }
   }
+
+  // ---------------------------
+  // MODAL DE CREAR TAREA
+  // ---------------------------
   const openBtn = document.querySelector('.create-task-btn');
   const modal = document.getElementById('createTask');
   const closeBtn = modal.querySelector('.close-modal');
@@ -306,7 +348,6 @@ function initDashboard() {
   closeBtn.addEventListener('click', () => {
     modal.style.display = 'none';
   });
-
 
   cancelBtn.addEventListener('click', () => {
     modal.style.display = 'none';
@@ -336,7 +377,6 @@ function initDashboard() {
     const emptyMsg = column.querySelector('.empty-state');
     if (emptyMsg) emptyMsg.style.display = 'none';
 
-
     // Crear la tarjeta de tarea
     if (column) {
       const card = document.createElement('div');
@@ -355,44 +395,6 @@ function initDashboard() {
 
     modal.style.display = 'none';
     form.reset();
-
   });
 }
 
-/**
- * Initialize the "board" view.
- * Sets up the todo form, input, and list with create/remove/toggle logic.
- */
-function initBoard() {
-  const form = document.getElementById('todoForm');
-  const input = document.getElementById('newTodo');
-  const list = document.getElementById('todoList');
-  if (!form || !input || !list) return;
-
-  // Add new todo item
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const title = input.value.trim();
-    if (!title) return;
-
-    const li = document.createElement('li');
-    li.className = 'todo';
-    li.innerHTML = `
-      <label>
-        <input type="checkbox" class="check">
-        <span>${title}</span>
-      </label>
-      <button class="link remove" type="button">Eliminar</button>
-    `;
-    list.prepend(li);
-    input.value = '';
-  });
-
-  // Handle remove and toggle completion
-  list.addEventListener('click', (e) => {
-    const li = e.target.closest('.todo');
-    if (!li) return;
-    if (e.target.matches('.remove')) li.remove();
-    if (e.target.matches('.check')) li.classList.toggle('completed', e.target.checked);
-  });
-}
