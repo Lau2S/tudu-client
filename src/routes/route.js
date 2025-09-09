@@ -65,7 +65,6 @@ function initHome() {
 function initSignup() {
   const form = document.getElementById('sign-up-form');
   if (!form) return;
-  // Evitar doble inicialización si la vista se renderiza varias veces
   if (form.dataset.tuduInit === 'true') return;
   form.dataset.tuduInit = 'true';
 
@@ -77,15 +76,18 @@ function initSignup() {
   const ageInput = document.getElementById('age');
   const submitBtn = document.getElementById('sign-up-button') || form.querySelector('button[type="submit"]');
 
-  console.log('initSignup ejecutado', { form: !!form, nombre: !!nombreInput, apellido: !!apellidoInput, email: !!emailInput, pass: !!passInput, confirm: !!confirmInput, age: !!ageInput, submitBtn: !!submitBtn });
+  if (!emailInput || !passInput || !confirmInput || !ageInput || !submitBtn) return;
 
-  if (!emailInput || !passInput || !confirmInput || !ageInput || !submitBtn) {
-    console.warn('initSignup: faltan elementos del formulario, revisa los ids.');
-    return;
-  }
+  // Crear contenedor para error de confirmación si no existe
+  let confirmError = document.createElement('div');
+  confirmError.style.color = 'red';
+  confirmError.style.fontSize = '0.85rem';
+  confirmError.style.marginTop = '-0.5rem';
+  confirmError.style.marginBottom = '0.8rem';
+  confirmError.style.display = 'none';
+  confirmInput.parentNode.insertBefore(confirmError, confirmInput.nextSibling);
 
-  // Regexs
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // suficiente para validar formato
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
 
   function validateForm() {
@@ -99,7 +101,18 @@ function initSignup() {
 
     if (!emailRegex.test(email)) { valid = false; errors.push('email'); }
     if (!passwordRegex.test(password)) { valid = false; errors.push('password'); }
-    if (password !== confirm) { valid = false; errors.push('confirm'); }
+    if (password !== confirm) {
+      valid = false;
+      errors.push('confirm');
+
+      // Mostrar mensaje debajo del confirm password
+      confirmError.textContent = '❌ Las contraseñas no coinciden';
+      confirmError.style.display = 'block';
+    } else {
+      confirmError.textContent = '';
+      confirmError.style.display = 'none';
+    }
+
     if (!/^\d+$/.test(age) || Number(age) < 13) { valid = false; errors.push('age'); }
 
     submitBtn.disabled = !valid;
@@ -113,18 +126,14 @@ function initSignup() {
     console.log('validateForm ->', { valid, errors });
   }
 
-  // Añadir listeners (idempotente por data attr del form)
-  [emailInput, passInput, confirmInput, ageInput].forEach((input) => {
+  [emailInput, passInput, confirmInput, ageInput].forEach(input => {
     input.addEventListener('input', validateForm);
   });
 
-  // Inicializa el estado del botón
   validateForm();
 
-  // Submit handler
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    // opcional: volver a validar antes de enviar
     validateForm();
     if (submitBtn.disabled) return;
 
@@ -143,14 +152,13 @@ function initSignup() {
     } catch (err) {
       alert('❌ No se pudo registrar: ' + (err?.message || err));
       console.error('registerUser error', err);
-      // re-evaluar si debe habilitarse (por ejemplo campos aún válidos)
       validateForm();
     } finally {
-      // si campos válidos, validateForm dejará el botón habilitado; si no, quedará deshabilitado
       validateForm();
     }
   });
 }
+
 
 /**
  * Initialize the "sign-in" view.
@@ -160,7 +168,6 @@ function initSignin() {
   const form = document.getElementById('sign-in-form');
   const emailInput = document.getElementById('sign-in-email');
   const passInput = document.getElementById('sign-in-password');
-  const msg = document.getElementById('loginMsg');
   const submitBtn = form?.querySelector('button[type="submit"]');
 
   if (!form || !emailInput || !passInput || !submitBtn) {
@@ -168,74 +175,78 @@ function initSignin() {
     return;
   }
 
-  // Evitar doble inicialización
   if (form.dataset.tuduInit === 'true') return;
   form.dataset.tuduInit = 'true';
 
-  // Verificar si ya está autenticado al cargar la vista
   if (isAuthenticated()) {
     location.hash = '#/dashboard';
     return;
   }
 
-  // Deshabilitar botón de entrada inicialmente
   submitBtn.disabled = true;
 
-  // Validación en tiempo real
   function validateForm() {
     const email = emailInput.value.trim();
     const password = passInput.value.trim();
-
-    // Validar email formato RFC 5322
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const isValidEmail = emailRegex.test(email);
-
-    // Sólo habilitar si el correo y la contraseña están correctos
     const isValid = isValidEmail && password.length > 0;
+
     submitBtn.disabled = !isValid;
     submitBtn.classList.toggle('enabled', isValid);
-
-    // Limpiar mensaje anterior
-    if (msg) msg.textContent = '';
   }
 
   emailInput.addEventListener('input', validateForm);
   passInput.addEventListener('input', validateForm);
-
-  // Validar al cargar
   validateForm();
+
+  // Función para mostrar ventana emergente tipo toast
+  function showToast(message) {
+    let toast = document.createElement('div');
+    toast.textContent = message;
+    toast.style.position = 'fixed';
+    toast.style.top = '20px';
+    toast.style.right = '20px';
+    toast.style.backgroundColor = '#dc3545';
+    toast.style.color = '#fff';
+    toast.style.padding = '12px 20px';
+    toast.style.borderRadius = '8px';
+    toast.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+    toast.style.zIndex = '1000';
+    toast.style.opacity = '0';
+    toast.style.transition = 'opacity 0.3s ease';
+
+    document.body.appendChild(toast);
+
+    // Mostrar con animación
+    requestAnimationFrame(() => {
+      toast.style.opacity = '1';
+    });
+
+    // Desaparece después de 3 segundos
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.addEventListener('transitionend', () => toast.remove());
+    }, 3000);
+  }
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-
-    // Limpiar mensaje anterior
-    if (msg) msg.textContent = '';
-
-    // Validar una vez más
     validateForm();
     if (submitBtn.disabled) return;
 
-    // Deshabilitar botón y cambiar texto
     submitBtn.disabled = true;
     const originalText = submitBtn.textContent;
     submitBtn.textContent = 'Iniciando sesión...';
 
     try {
-      // Mandar credenciales al backend (usando la ruta correcta)
       const data = await loginUser({
         email: emailInput.value.trim(),
         password: passInput.value.trim()
       });
 
-      if (msg) {
-        msg.textContent = 'Inicio de sesión exitoso';
-        msg.style.color = '#28a745';
-      }
-
-      // Guardar JWT token (tu backend devuelve { message: "Login successful", token: "..." })
       localStorage.setItem('token', data.token);
 
-      // Decodificar token para guardar info del usuario
       try {
         const tokenPayload = JSON.parse(atob(data.token.split('.')[1]));
         localStorage.setItem('userId', tokenPayload.userId);
@@ -245,21 +256,17 @@ function initSignin() {
         console.warn('No se pudo decodificar el token:', tokenError);
       }
 
-      // Redirigir al dashboard después de un breve delay
       setTimeout(() => (location.hash = '#/dashboard'), 1000);
     } catch (err) {
-      if (msg) {
-        msg.textContent = `Error: ${err.message}`;
-        msg.style.color = '#dc3545';
-      }
+      showToast('⚠️ Credenciales incorrectas');
       console.error('Login error:', err);
     } finally {
-      // Restaurar el botón
       submitBtn.textContent = originalText;
-      validateForm(); // Esto habilitará el botón si los datos siguen siendo válidos
+      validateForm();
     }
   });
 }
+
 
 /**
  * Initialize the "dashboard" view.

@@ -729,3 +729,9 @@ a:hover {
 .user-profile.active .dropdown-arrow {
     transform: rotate(180deg);
 }
+
+.password-label-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
