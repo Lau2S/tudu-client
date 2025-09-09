@@ -1,4 +1,4 @@
-import { registerUser } from '../services/userService.js';
+import { registerUser, loginUser, logoutUser, isAuthenticated, getCurrentUser } from '../services/userService.js';
 
 const app = document.getElementById('app');
 
@@ -139,7 +139,7 @@ function initSignup() {
     try {
       await registerUser({ nombre, apellido, email, password, age });
       alert('✅ Registro exitoso 🎉');
-      setTimeout(() => (location.hash = '#/board'), 400);
+      setTimeout(() => (location.hash = '#/sign-in'), 400);
     } catch (err) {
       alert('❌ No se pudo registrar: ' + (err?.message || err));
       console.error('registerUser error', err);
@@ -152,7 +152,10 @@ function initSignup() {
   });
 }
 
-
+/**
+ * Initialize the "sign-in" view.
+ * ACTUALIZADA para conectar correctamente con el backend
+ */
 function initSignin() {
   const form = document.getElementById('sign-in-form');
   const emailInput = document.getElementById('sign-in-email');
@@ -160,7 +163,20 @@ function initSignin() {
   const msg = document.getElementById('loginMsg');
   const submitBtn = form?.querySelector('button[type="submit"]');
 
-  if (!form || !emailInput || !passInput || !submitBtn) return;
+  if (!form || !emailInput || !passInput || !submitBtn) {
+    console.warn('initSignin: faltan elementos del formulario, revisa los ids.');
+    return;
+  }
+
+  // Evitar doble inicialización
+  if (form.dataset.tuduInit === 'true') return;
+  form.dataset.tuduInit = 'true';
+
+  // Verificar si ya está autenticado al cargar la vista
+  if (isAuthenticated()) {
+    location.hash = '#/dashboard';
+    return;
+  }
 
   // Deshabilitar botón de entrada inicialmente
   submitBtn.disabled = true;
@@ -175,80 +191,109 @@ function initSignin() {
     const isValidEmail = emailRegex.test(email);
 
     // Sólo habilitar si el correo y la contraseña están correctos
-    submitBtn.disabled = !(isValidEmail && password.length > 0);
+    const isValid = isValidEmail && password.length > 0;
+    submitBtn.disabled = !isValid;
+    submitBtn.classList.toggle('enabled', isValid);
+
+    // Limpiar mensaje anterior
+    if (msg) msg.textContent = '';
   }
 
   emailInput.addEventListener('input', validateForm);
   passInput.addEventListener('input', validateForm);
 
+  // Validar al cargar
+  validateForm();
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    msg.textContent = '';
+
+    // Limpiar mensaje anterior
+    if (msg) msg.textContent = '';
+
+    // Validar una vez más
+    validateForm();
+    if (submitBtn.disabled) return;
+
+    // Deshabilitar botón y cambiar texto
+    submitBtn.disabled = true;
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Iniciando sesión...';
 
     try {
-      // Mandar credenciales al backend
+      // Mandar credenciales al backend (usando la ruta correcta)
       const data = await loginUser({
         email: emailInput.value.trim(),
         password: passInput.value.trim()
       });
 
-      msg.textContent = 'Inicio de sesión exitoso';
-      localStorage.setItem('token', data.token); // guardar JWT
-      setTimeout(() => (location.hash = '#/dashboard'), 400);
+      if (msg) {
+        msg.textContent = 'Inicio de sesión exitoso';
+        msg.style.color = '#28a745';
+      }
+
+      // Guardar JWT token (tu backend devuelve { message: "Login successful", token: "..." })
+      localStorage.setItem('token', data.token);
+
+      // Decodificar token para guardar info del usuario
+      try {
+        const tokenPayload = JSON.parse(atob(data.token.split('.')[1]));
+        localStorage.setItem('userId', tokenPayload.userId);
+        localStorage.setItem('userEmail', tokenPayload.email);
+        console.log('Usuario logueado:', { userId: tokenPayload.userId, email: tokenPayload.email });
+      } catch (tokenError) {
+        console.warn('No se pudo decodificar el token:', tokenError);
+      }
+
+      // Redirigir al dashboard después de un breve delay
+      setTimeout(() => (location.hash = '#/dashboard'), 1000);
     } catch (err) {
-      msg.textContent = `Error: ${err.message}`;
+      if (msg) {
+        msg.textContent = `Error: ${err.message}`;
+        msg.style.color = '#dc3545';
+      }
+      console.error('Login error:', err);
+    } finally {
+      // Restaurar el botón
+      submitBtn.textContent = originalText;
+      validateForm(); // Esto habilitará el botón si los datos siguen siendo válidos
     }
   });
 }
 
-
-
+/**
+ * Initialize the "dashboard" view.
+ * ACTUALIZADA para proteger con autenticación
+ */
 function initDashboard() {
-  const form = document.getElementById('loginForm');
-  const emailInput = document.getElementById('email');
-  const passInput = document.getElementById('password');
-  const msg = document.getElementById('loginMsg');
-  const submitBtn = form?.querySelector('button[type="submit"]');
-
-  if (!form || !emailInput || !passInput || !submitBtn) return;
-
-  // Deshabilitar botón de entrada inicialmente
-  submitBtn.disabled = true;
-
-  // Validación en tiempo real
-  function validateForm() {
-    const email = emailInput.value.trim();
-    const password = passInput.value.trim();
-
-    // Validar email formato RFC 5322
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const isValidEmail = emailRegex.test(email);
-
-    // Sólo habilitar si el correo y la contraseña están correctos
-    submitBtn.disabled = !(isValidEmail && password.length > 0);
+  // Verificar autenticación antes de mostrar dashboard
+  if (!isAuthenticated()) {
+    console.log('Usuario no autenticado, redirigiendo a sign-in');
+    location.hash = '#/sign-in';
+    return;
   }
 
-  emailInput.addEventListener('input', validateForm);
-  passInput.addEventListener('input', validateForm);
+  console.log('Dashboard inicializado para usuario:', getCurrentUser());
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    msg.textContent = '';
+  // Buscar botón de logout si existe
+  const logoutBtn = document.getElementById('logoutBtn') || document.querySelector('[data-action="logout"]');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      try {
+        await logoutUser();
+        console.log('Logout exitoso');
+      } catch (error) {
+        console.error('Error durante logout:', error);
+        // Aún así limpiar y redirigir
+        localStorage.clear();
+        location.hash = '#/sign-in';
+      }
+    });
+  }
 
-    try {
-      // Mandar credenciales al backend
-      const data = await loginUser({
-        email: emailInput.value.trim(),
-        password: passInput.value.trim()
-      });
-
-      msg.textContent = 'Inicio de sesión exitoso';
-      localStorage.setItem('token', data.token); // guardar JWT
-      setTimeout(() => (location.hash = '#/dashboard'), 400);
-    } catch (err) {
-      msg.textContent = `Error: ${err.message}`;
-    }
-  });
+  // Aquí puedes agregar el resto de la lógica del dashboard
+  // Por ejemplo, cargar las tareas del usuario, mostrar su perfil, etc.
 }
 
 /**
