@@ -14,7 +14,7 @@
 
     <div class ="password-label-container">
       <label for="sign-in-password">Contraseña</label>
-      <a href="#/reset-password" class="forgot-password-link">¿Olvidaste tu contraseña?</a>
+      <a class="forgot-password-link">¿Olvidaste tu contraseña?</a>
     </div>
     
     <input type="password" id="sign-in-password" name="password" placeholder="Ingrese su contraseña" required>
@@ -30,3 +30,21 @@
 <footer class="footer">
   <p>©2025 Tudu. Todos los derechos reservados &nbsp;&nbsp;&nbsp; Mapa del Sitio</p>
 </footer>
+
+<div id="recoveryPassword" class="modal" style="display: none;">
+    <div class="modal-password-content">
+        <span class="close-modal">&times;</span>
+        <h3>Recuperar contraseña</h3>
+        <form id="createTaskForm" autocomplete="off">
+            <div class="form-group">
+                <label for="forgotLink" style="opacity: 0.52;font-size: 15px;">Ingresa tu correo correo electronico</label>
+                <input id="forgotLink" name="taskTitle" type="text" placeholder="Ingresa tu correo"
+                    required />
+            </div>
+            <div class="buttons-modal">
+                <button type="button" id="cancelTaskBtn">Cancelar</button>
+                <button type="submit">Enviar</button>
+            </div>
+        </form>
+    </div>
+</div>

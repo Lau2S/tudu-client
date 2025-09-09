@@ -55,13 +55,12 @@ function handleRoute() {
 
 /* ---- View-specific logic ---- */
 
-/**
- * Initialize the "home" view.
- * Attaches a submit handler to the register form to navigate to the board.
- */
 function initHome() {
-
 }
+
+//  * Initialize the "home" view.
+//  * Attaches a submit handler to the register form to navigate to the board.
+   
 
 function initSignup() {
   const form = document.getElementById('sign-up-form');
@@ -201,35 +200,30 @@ function initSignin() {
   passInput.addEventListener('input', validateForm);
   validateForm();
 
-  // Función para mostrar ventana emergente tipo toast
-  function showToast(message) {
-    let toast = document.createElement('div');
-    toast.textContent = message;
-    toast.style.position = 'fixed';
-    toast.style.top = '20px';
-    toast.style.right = '20px';
-    toast.style.backgroundColor = '#dc3545';
-    toast.style.color = '#fff';
-    toast.style.padding = '12px 20px';
-    toast.style.borderRadius = '8px';
-    toast.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
-    toast.style.zIndex = '1000';
-    toast.style.opacity = '0';
-    toast.style.transition = 'opacity 0.3s ease';
 
-    document.body.appendChild(toast);
-
-    // Mostrar con animación
-    requestAnimationFrame(() => {
-      toast.style.opacity = '1';
+  // Mostrar modal de "Olvidaste tu contraseña"
+  const forgotLink = document.querySelector('.forgot-password-link');
+  const modal = document.getElementById('recoveryPassword');
+  const cancelBtn = document.getElementById('cancelTaskBtn');
+  const closeBtn = modal?.querySelector('.close-modal');
+  
+  if (forgotLink && modal) {
+    forgotLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      modal.style.display = 'block';
+    });
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        modal.style.display = 'none';
+      }
     });
 
-    // Desaparece después de 3 segundos
-    setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.addEventListener('transitionend', () => toast.remove());
-    }, 3000);
   }
+
+  closeBtn?.addEventListener('click', () => modal.style.display = 'none');
+  cancelBtn?.addEventListener('click', () => modal.style.display = 'none');
+
+
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -273,35 +267,279 @@ function initSignin() {
  * Initialize the "dashboard" view.
  * ACTUALIZADA para proteger con autenticación
  */
-function initDashboard() {
+/**
+ * Mostrar notificación toast
+ */
+
+
+async function initDashboard() {
+  if (!isAuthenticated()) {
+    location.hash = '#/sign-in';
+    return;
+  }
+
+  const currentUser = getCurrentUser();
+  const userNameEl = document.querySelector('.user-name');
+  const userAvatar = document.querySelector('.user-avatar');
+
+  if (userNameEl && userAvatar && currentUser?.email) {
+    userNameEl.textContent = currentUser.email.split('@')[0];
+    userAvatar.textContent = currentUser.email[0].toUpperCase();
+  }
+
+  await loadTasksFromBackend();
+  initUserDropdown();
+  initCreateTaskModal();
+  initTaskActions();
+
+}
+
+// ===========================
+// CARGAR TAREAS DESDE BACKEND
+// ===========================
+async function loadTasksFromBackend() {
+  try {
+    console.log('Iniciando carga de tareas...');
+    const tasks = await getTasks(); // Función que obtiene tareas del backend
+    console.log('Tareas recibidas:', tasks);
+
+    // Verificar que tasks sea un array
+    if (!Array.isArray(tasks)) {
+      console.error('Las tareas no son un array:', tasks);
+      showToast('Error: formato de datos incorrecto', 'error');
+      return;
+    }
+
+    const columns = {
+      pending: document.querySelector('.pending-column .task-list'),
+      progress: document.querySelector('.progress-column .task-list'),
+      completed: document.querySelector('.completed-column .task-list')
+    };
+
+    // Verificar que las columnas existan
+    Object.entries(columns).forEach(([key, col]) => {
+      if (!col) {
+        console.error(`Columna no encontrada: .${key}-column .task-list`);
+      }
+    });
+
+    // Limpiar columnas existentes
+    Object.values(columns).forEach(col => {
+      if (col) col.innerHTML = '';
+    });
+
+    // Normalizar estados de tareas (en caso de inconsistencias)
+    const normalizeStatus = (status) => {
+      const statusMap = {
+        'pending': 'pending',
+        'pendiente': 'pending',
+        'en_progreso': 'progress',
+        'progress': 'progress',
+        'in_progress': 'progress',
+        'completed': 'completed',
+        'completada': 'completed',
+        'done': 'completed'
+      };
+      return statusMap[status?.toLowerCase()] || 'pending';
+    };
+
+    // Agrupar tareas por estado normalizado
+    const tasksByStatus = {
+      pending: [],
+      progress: [],
+      completed: []
+    };
+
+    tasks.forEach(task => {
+      const normalizedStatus = normalizeStatus(task.status);
+      if (tasksByStatus[normalizedStatus]) {
+        tasksByStatus[normalizedStatus].push(task);
+      }
+    });
+
+    console.log('Tareas agrupadas:', tasksByStatus);
+
+    // Renderizar tareas en cada columna
+    Object.entries(tasksByStatus).forEach(([status, taskList]) => {
+      const col = columns[status];
+      if (!col) {
+        console.warn(`Columna no encontrada para estado: ${status}`);
+        return;
+      }
+
+      if (taskList.length === 0) {
+        const emptyDiv = document.createElement('div');
+        emptyDiv.className = 'empty-state';
+        emptyDiv.style.cssText = `
+          text-align: center;
+          color: #888;
+          padding: 20px;
+          font-style: italic;
+        `;
+        emptyDiv.textContent = 'No hay tareas aún';
+        col.appendChild(emptyDiv);
+      } else {
+        taskList.forEach(task => {
+          const taskCard = createTaskCard(task);
+          if (taskCard) {
+            col.appendChild(taskCard);
+          }
+        });
+      }
+    });
+
+    // Actualizar contadores
+    updateColumnCounts(tasksByStatus);
+
+    console.log('Tareas renderizadas correctamente');
+
+  } catch (err) {
+    console.error('Error cargando tareas:', err);
+    showToast('Error cargando tareas: ' + (err.message || err), 'error');
+  }
+}
+
+// ===========================
+// ACTUALIZAR CONTADORES
+// ===========================
+function updateColumnCounts(tasksByStatus) {
+  const counters = {
+    pending: document.querySelector('.pending-column .column-count'),
+    progress: document.querySelector('.progress-column .column-count'),
+    completed: document.querySelector('.completed-column .column-count')
+  };
+
+  Object.entries(counters).forEach(([status, counter]) => {
+    if (counter && tasksByStatus[status]) {
+      counter.textContent = tasksByStatus[status].length;
+    }
+  });
+}
+
+// ===========================
+// CREAR TARJETA DE TAREA
+// ===========================
+function createTaskCard(task) {
+  if (!task) {
+    console.error('Task es null o undefined');
+    return null;
+  }
+
+  const card = document.createElement('div');
+  card.className = 'task-card';
+  card.dataset.taskId = task.id || task._id || '';
+  const date = task.date
+  const time = task.time
+
+  // Validar datos de la tarea
+  const title = task.title || 'Sin título';
+  const detail = task.detail || task.description || '';
+  
+
+  let datetime = '';
+  if (task.dueDate) {
+    const [date, time] = task.dueDate.split('T');
+    datetime = `Fecha: ${date}${time && time !== '00:00:00' ? ', ' + time.slice(0,5) : ''}`;
+  }
+
+  card.innerHTML = `
+    <div class="task-options">
+      <button class="task-option-btn edit-btn" title="Editar">✏️</button>
+      <button class="task-option-btn delete-btn" title="Eliminar">🗑️</button>
+    </div>
+    <div class="task-title">${escapeHtml(title)}</div>
+    <div class="task-description">${escapeHtml(detail)}</div>
+    <div class="task-datetime">${datetime}</div>
+
+  `;
+
+  // Hacer las tarjetas arrastrables (opcional)
+  card.draggable = true;
+
+  return card;
+}
+
+// ===========================
+// ESCAPAR HTML PARA SEGURIDAD
+// ===========================
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// ===========================
+// MENU USUARIO Y LOGOUT
+// ===========================
+function initUserDropdown() {
+  const userProfile = document.querySelector('.user-profile');
+  if (!userProfile) return;
+  const dropdown = userProfile.querySelector('.user-dropdown');
+
+  userProfile.addEventListener('click', e => {
+    e.stopPropagation();
+    dropdown.classList.toggle('active');
+    userProfile.classList.toggle('active');
+  });
+
+  document.addEventListener('click', () => {
+    dropdown.classList.remove('active');
+    userProfile.classList.remove('active');
+  });
+
+  const logoutOption = document.getElementById('logoutOption');
+  if (logoutOption) {
+    logoutOption.addEventListener('click', async () => {
+      try {
+        await logoutUser();
+      } catch (err) {
+        console.warn('Error en logout:', err);
+      }
+      localStorage.clear();
+      sessionStorage.clear();
+      location.hash = '#/sign-in';
+      showToast('Sesión cerrada correctamente', 'success');
+    });
+  }
+}
+
+// ===========================
+// MODAL CREAR TAREA
+// ===========================
+function initCreateTaskModal() {
   const openBtn = document.querySelector('.create-task-btn');
   const modal = document.getElementById('createTask');
-  const closeBtn = modal.querySelector('.close-modal');
+  const closeBtn = modal?.querySelector('.close-modal');
   const form = document.getElementById('createTaskForm');
   const cancelBtn = document.getElementById('cancelTaskBtn');
 
-  // Mostrar modal
+  
+
+  if (!openBtn || !modal || !form) {
+    console.warn('Elementos del modal no encontrados');
+    return;
+  }
+
   openBtn.addEventListener('click', () => {
     modal.style.display = 'block';
+    form.reset();
   });
 
-  // Cerrar modal con la X
-  closeBtn.addEventListener('click', () => {
-    modal.style.display = 'none';
+  closeBtn?.addEventListener('click', () => modal.style.display = 'none');
+  cancelBtn?.addEventListener('click', () => modal.style.display = 'none');
+
+  modal.addEventListener('click', e => {
+    if (e.target === modal) modal.style.display = 'none';
   });
 
-
-  cancelBtn.addEventListener('click', () => {
-    modal.style.display = 'none';
-  });
-
-  // Manejar envío del formulario
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async e => {
     e.preventDefault();
     const submitBtn = form.querySelector('button[type="submit"]');
     const originalText = submitBtn.textContent;
     submitBtn.disabled = true;
     submitBtn.textContent = 'Guardando...';
+    const date = form.taskDate.value;
+    const time = form.taskTime.value;
 
     try {
       const data = new FormData(form);
@@ -341,60 +579,60 @@ function initDashboard() {
   });
 }
 
-// ===========================
-// EDITAR / ELIMINAR TAREAS
-// ===========================
-function initTaskActions() {
-  document.addEventListener('click', async e => {
-    const card = e.target.closest('.task-card');
-    if (!card) return;
+// // ===========================
+// // EDITAR / ELIMINAR TAREAS
+// // ===========================
+// function initTaskActions() {
+//   document.addEventListener('click', async e => {
+//     const card = e.target.closest('.task-card');
+//     if (!card) return;
 
-    const taskId = card.dataset.taskId;
-    if (!taskId) {
-      console.error('ID de tarea no encontrado');
-      return;
-    }
+//     const taskId = card.dataset.taskId;
+//     if (!taskId) {
+//       console.error('ID de tarea no encontrado');
+//       return;
+//     }
 
-    if (e.target.classList.contains('delete-btn')) {
-      if (!confirm('¿Seguro que quieres eliminar esta tarea?')) return;
+//     if (e.target.classList.contains('delete-btn')) {
+//       if (!confirm('¿Seguro que quieres eliminar esta tarea?')) return;
 
-      try {
-        await deleteTask(taskId);
-        showToast('🗑️ Tarea eliminada', 'success');
-        await loadTasksFromBackend();
-      } catch (err) {
-        console.error('Error eliminando tarea:', err);
-        showToast('❌ Error eliminando: ' + (err.message || err), 'error');
-      }
-    }
+//       try {
+//         await deleteTask(taskId);
+//         showToast('🗑️ Tarea eliminada', 'success');
+//         await loadTasksFromBackend();
+//       } catch (err) {
+//         console.error('Error eliminando tarea:', err);
+//         showToast('❌ Error eliminando: ' + (err.message || err), 'error');
+//       }
+//     }
 
-    if (e.target.classList.contains('edit-btn')) {
-      const titleEl = card.querySelector('.task-title');
-      const descEl = card.querySelector('.task-description');
+//     if (e.target.classList.contains('edit-btn')) {
+//       const titleEl = card.querySelector('.task-title');
+//       const descEl = card.querySelector('.task-description');
 
-      const currentTitle = titleEl?.textContent || '';
-      const currentDesc = descEl?.textContent || '';
+//       const currentTitle = titleEl?.textContent || '';
+//       const currentDesc = descEl?.textContent || '';
 
-      const newTitle = prompt('Nuevo título:', currentTitle);
-      if (newTitle === null || newTitle.trim() === '') return;
+//       const newTitle = prompt('Nuevo título:', currentTitle);
+//       if (newTitle === null || newTitle.trim() === '') return;
 
-      const newDesc = prompt('Nueva descripción:', currentDesc);
-      if (newDesc === null) return;
+//       const newDesc = prompt('Nueva descripción:', currentDesc);
+//       if (newDesc === null) return;
 
-      try {
-        await updateTask(taskId, {
-          title: newTitle.trim(),
-          detail: newDesc.trim()
-        });
-        showToast('✏️ Tarea actualizada', 'success');
-        await loadTasksFromBackend();
-      } catch (err) {
-        console.error('Error actualizando tarea:', err);
-        showToast('❌ Error actualizando: ' + (err.message || err), 'error');
-      }
-    }
-  });
-}
+//       try {
+//         await updateTask(taskId, {
+//           title: newTitle.trim(),
+//           detail: newDesc.trim()
+//         });
+//         showToast('✏️ Tarea actualizada', 'success');
+//         await loadTasksFromBackend();
+//       } catch (err) {
+//         console.error('Error actualizando tarea:', err);
+//         showToast('❌ Error actualizando: ' + (err.message || err), 'error');
+//       }
+//     }
+//   });
+// }
 
 // ===========================
 // NOTIFICACIONES TOAST
@@ -432,113 +670,4 @@ function debugDashboard() {
   console.log('- Create btn:', document.querySelector('.create-task-btn'));
   console.log('- Modal:', document.getElementById('createTask'));
   console.log('- Form:', document.getElementById('createTaskForm'));
-    const title = form.taskTitle.value.trim();
-    const desc = form.taskDesc.value.trim();
-    const date = form.taskDate.value;
-    const time = form.taskTime.value;
-    const status = form.taskStatus.value;
-
-  let datetime = '';
-  if (date && time) datetime = `Fecha: ${date}, ${time}`;
-  else if (date) datetime =  `Fecha: ${date}`;
-  else if (time) datetime = `Hora: ${time}`;
-
-  // Buscar el contenedor de columna según el estado
-  let columnClass = '';
-  if (status === 'pending') columnClass = '.pending-column .task-list';
-  else if (status === 'progress') columnClass = '.progress-column .task-list';
-  else if (status === 'completed') columnClass = '.completed-column .task-list';
-  const column = document.querySelector(columnClass);
-
-  const emptyMsg = column.querySelector('.empty-state');
-  if (emptyMsg) emptyMsg.style.display = 'none';
-
-
-    // Crear la tarjeta de tarea
-    if (column) {
-      const card = document.createElement('div');
-      card.className = 'task-card';
-      card.innerHTML = `
-        <div class="task-options">
-          <button class="task-option-btn">✏️</button>
-          <button class="task-option-btn">🗑️</button>
-        </div>
-        <div class="task-title">${title}</div>
-        <div class="task-description">${desc}</div>
-        <div class="task-datetime">${datetime}</div>
-      `;
-      column.prepend(card);
-    }
-
-    modal.style.display = 'none';
-    form.reset();
-    
-  });
-
-  // Verificar autenticación antes de mostrar dashboard
-  if (!isAuthenticated()) {
-    console.log('Usuario no autenticado, redirigiendo a sign-in');
-    location.hash = '#/sign-in';
-    return;
-  }
-
-  console.log('Dashboard inicializado para usuario:', getCurrentUser());
-
-  // Buscar botón de logout si existe
-  const logoutBtn = document.getElementById('logoutBtn') || document.querySelector('[data-action="logout"]');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      try {
-        await logoutUser();
-        console.log('Logout exitoso');
-      } catch (error) {
-        console.error('Error durante logout:', error);
-        // Aún así limpiar y redirigir
-        localStorage.clear();
-        location.hash = '#/sign-in';
-      }
-    });
-  }
-
-  // Aquí puedes agregar el resto de la lógica del dashboard
-  // Por ejemplo, cargar las tareas del usuario, mostrar su perfil, etc.
-}
-
-/**
- * Initialize the "board" view.
- * Sets up the todo form, input, and list with create/remove/toggle logic.
- */
-function initBoard() {
-  const form = document.getElementById('todoForm');
-  const input = document.getElementById('newTodo');
-  const list = document.getElementById('todoList');
-  if (!form || !input || !list) return;
-
-  // Add new todo item
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const title = input.value.trim();
-    if (!title) return;
-
-    const li = document.createElement('li');
-    li.className = 'todo';
-    li.innerHTML = `
-      <label>
-        <input type="checkbox" class="check">
-        <span>${title}</span>
-      </label>
-      <button class="link remove" type="button">Eliminar</button>
-    `;
-    list.prepend(li);
-    input.value = '';
-  });
-
-  // Handle remove and toggle completion
-  list.addEventListener('click', (e) => {
-    const li = e.target.closest('.todo');
-    if (!li) return;
-    if (e.target.matches('.remove')) li.remove();
-    if (e.target.matches('.check')) li.classList.toggle('completed', e.target.checked);
-  });
 }
