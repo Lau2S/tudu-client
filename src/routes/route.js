@@ -102,7 +102,72 @@ function initSignin() {
 }
 
 function initDashboard() {
+  const openBtn = document.querySelector('.create-task-btn');
+  const modal = document.getElementById('createTask');
+  const closeBtn = modal.querySelector('.close-modal');
+  const form = document.getElementById('createTaskForm');
+  const cancelBtn = document.getElementById('cancelTaskBtn');
 
+  // Mostrar modal
+  openBtn.addEventListener('click', () => {
+    modal.style.display = 'block';
+  });
+
+  // Cerrar modal con la X
+  closeBtn.addEventListener('click', () => {
+    modal.style.display = 'none';
+  });
+
+
+  cancelBtn.addEventListener('click', () => {
+    modal.style.display = 'none';
+  });
+
+  // Manejar envío del formulario
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const title = form.taskTitle.value.trim();
+    const desc = form.taskDesc.value.trim();
+    const date = form.taskDate.value;
+    const time = form.taskTime.value;
+    const status = form.taskStatus.value;
+
+  let datetime = '';
+  if (date && time) datetime = `Fecha: ${date}, ${time}`;
+  else if (date) datetime =  `Fecha: ${date}`;
+  else if (time) datetime = `Hora: ${time}`;
+
+  // Buscar el contenedor de columna según el estado
+  let columnClass = '';
+  if (status === 'pending') columnClass = '.pending-column .task-list';
+  else if (status === 'progress') columnClass = '.progress-column .task-list';
+  else if (status === 'completed') columnClass = '.completed-column .task-list';
+  const column = document.querySelector(columnClass);
+
+  const emptyMsg = column.querySelector('.empty-state');
+  if (emptyMsg) emptyMsg.style.display = 'none';
+
+
+    // Crear la tarjeta de tarea
+    if (column) {
+      const card = document.createElement('div');
+      card.className = 'task-card';
+      card.innerHTML = `
+        <div class="task-options">
+          <button class="task-option-btn">✏️</button>
+          <button class="task-option-btn">🗑️</button>
+        </div>
+        <div class="task-title">${title}</div>
+        <div class="task-description">${desc}</div>
+        <div class="task-datetime">${datetime}</div>
+      `;
+      column.prepend(card);
+    }
+
+    modal.style.display = 'none';
+    form.reset();
+    
+  });
 }
 
 /**
