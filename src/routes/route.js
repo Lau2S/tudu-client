@@ -1,4 +1,4 @@
-import { registerUser } from '../services/userService.js';
+import { registerUser, loginUser, logoutUser, isAuthenticated, getCurrentUser } from '../services/userService.js';
 
 const app = document.getElementById('app');
 
@@ -59,48 +59,212 @@ function handleRoute() {
  * Attaches a submit handler to the register form to navigate to the board.
  */
 function initHome() {
-  
+
 }
 
 function initSignup() {
-  const form = document.getElementById('registerForm');
-  const userInput = document.getElementById('username');
-  const passInput = document.getElementById('password');
-  const msg = document.getElementById('registerMsg');
-
+  const form = document.getElementById('sign-up-form');
   if (!form) return;
+  // Evitar doble inicialización si la vista se renderiza varias veces
+  if (form.dataset.tuduInit === 'true') return;
+  form.dataset.tuduInit = 'true';
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    msg.textContent = '';
+  const nombreInput = document.getElementById('name');
+  const apellidoInput = document.getElementById('last-name');
+  const emailInput = document.getElementById('sign-up-email');
+  const passInput = document.getElementById('sign-up-password');
+  const confirmInput = document.getElementById('confirm-password');
+  const ageInput = document.getElementById('age');
+  const submitBtn = document.getElementById('sign-up-button') || form.querySelector('button[type="submit"]');
 
-    const username = userInput?.value.trim();
-    const password = passInput?.value.trim();
+  console.log('initSignup ejecutado', { form: !!form, nombre: !!nombreInput, apellido: !!apellidoInput, email: !!emailInput, pass: !!passInput, confirm: !!confirmInput, age: !!ageInput, submitBtn: !!submitBtn });
 
-    if (!username || !password) {
-      msg.textContent = 'Por favor completa usuario y contraseña.';
-      return;
+  if (!emailInput || !passInput || !confirmInput || !ageInput || !submitBtn) {
+    console.warn('initSignup: faltan elementos del formulario, revisa los ids.');
+    return;
+  }
+
+  // Regexs
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // suficiente para validar formato
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
+
+  function validateForm() {
+    const email = (emailInput.value || '').trim();
+    const password = (passInput.value || '').trim();
+    const confirm = (confirmInput.value || '').trim();
+    const age = (ageInput.value || '').trim();
+
+    let valid = true;
+    const errors = [];
+
+    if (!emailRegex.test(email)) { valid = false; errors.push('email'); }
+    if (!passwordRegex.test(password)) { valid = false; errors.push('password'); }
+    if (password !== confirm) { valid = false; errors.push('confirm'); }
+    if (!/^\d+$/.test(age) || Number(age) < 13) { valid = false; errors.push('age'); }
+
+    submitBtn.disabled = !valid;
+    submitBtn.classList.toggle('enabled', valid);
+    if (!valid) {
+      submitBtn.setAttribute('title', 'Corrige: ' + errors.join(', '));
+    } else {
+      submitBtn.removeAttribute('title');
     }
 
-    form.querySelector('button[type="submit"]').disabled = true;
+    console.log('validateForm ->', { valid, errors });
+  }
+
+  // Añadir listeners (idempotente por data attr del form)
+  [emailInput, passInput, confirmInput, ageInput].forEach((input) => {
+    input.addEventListener('input', validateForm);
+  });
+
+  // Inicializa el estado del botón
+  validateForm();
+
+  // Submit handler
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    // opcional: volver a validar antes de enviar
+    validateForm();
+    if (submitBtn.disabled) return;
+
+    submitBtn.disabled = true;
+
+    const nombre = nombreInput ? nombreInput.value.trim() : '';
+    const apellido = apellidoInput ? apellidoInput.value.trim() : '';
+    const email = emailInput.value.trim();
+    const password = passInput.value.trim();
+    const age = ageInput.value.trim();
 
     try {
-      const data = await registerUser({ username, password });
-      msg.textContent = 'Registro exitoso';
-
-      setTimeout(() => (location.hash = '#/board'), 400);
+      await registerUser({ nombre, apellido, email, password, age });
+      alert('✅ Registro exitoso 🎉');
+      setTimeout(() => (location.hash = '#/sign-in'), 400);
     } catch (err) {
-      msg.textContent = `No se pudo registrar: ${err.message}`;
+      alert('❌ No se pudo registrar: ' + (err?.message || err));
+      console.error('registerUser error', err);
+      // re-evaluar si debe habilitarse (por ejemplo campos aún válidos)
+      validateForm();
     } finally {
-      form.querySelector('button[type="submit"]').disabled = false;
+      // si campos válidos, validateForm dejará el botón habilitado; si no, quedará deshabilitado
+      validateForm();
     }
   });
 }
 
+/**
+ * Initialize the "sign-in" view.
+ * ACTUALIZADA para conectar correctamente con el backend
+ */
 function initSignin() {
+  const form = document.getElementById('sign-in-form');
+  const emailInput = document.getElementById('sign-in-email');
+  const passInput = document.getElementById('sign-in-password');
+  const msg = document.getElementById('loginMsg');
+  const submitBtn = form?.querySelector('button[type="submit"]');
 
+  if (!form || !emailInput || !passInput || !submitBtn) {
+    console.warn('initSignin: faltan elementos del formulario, revisa los ids.');
+    return;
+  }
+
+  // Evitar doble inicialización
+  if (form.dataset.tuduInit === 'true') return;
+  form.dataset.tuduInit = 'true';
+
+  // Verificar si ya está autenticado al cargar la vista
+  if (isAuthenticated()) {
+    location.hash = '#/dashboard';
+    return;
+  }
+
+  // Deshabilitar botón de entrada inicialmente
+  submitBtn.disabled = true;
+
+  // Validación en tiempo real
+  function validateForm() {
+    const email = emailInput.value.trim();
+    const password = passInput.value.trim();
+
+    // Validar email formato RFC 5322
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const isValidEmail = emailRegex.test(email);
+
+    // Sólo habilitar si el correo y la contraseña están correctos
+    const isValid = isValidEmail && password.length > 0;
+    submitBtn.disabled = !isValid;
+    submitBtn.classList.toggle('enabled', isValid);
+
+    // Limpiar mensaje anterior
+    if (msg) msg.textContent = '';
+  }
+
+  emailInput.addEventListener('input', validateForm);
+  passInput.addEventListener('input', validateForm);
+
+  // Validar al cargar
+  validateForm();
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Limpiar mensaje anterior
+    if (msg) msg.textContent = '';
+
+    // Validar una vez más
+    validateForm();
+    if (submitBtn.disabled) return;
+
+    // Deshabilitar botón y cambiar texto
+    submitBtn.disabled = true;
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Iniciando sesión...';
+
+    try {
+      // Mandar credenciales al backend (usando la ruta correcta)
+      const data = await loginUser({
+        email: emailInput.value.trim(),
+        password: passInput.value.trim()
+      });
+
+      if (msg) {
+        msg.textContent = 'Inicio de sesión exitoso';
+        msg.style.color = '#28a745';
+      }
+
+      // Guardar JWT token (tu backend devuelve { message: "Login successful", token: "..." })
+      sessionStorage.setItem('token', data.token);
+
+      // Decodificar token para guardar info del usuario
+      try {
+        const tokenPayload = JSON.parse(atob(data.token.split('.')[1]));
+        sessionStorage.setItem('userId', tokenPayload.userId);
+        sessionStorage.setItem('userEmail', tokenPayload.email);
+        console.log('Usuario logueado:', { userId: tokenPayload.userId, email: tokenPayload.email });
+      } catch (tokenError) {
+        console.warn('No se pudo decodificar el token:', tokenError);
+      }
+
+      // Redirigir al dashboard después de un breve delay
+      setTimeout(() => (location.hash = '#/dashboard'), 1000);
+    } catch (err) {
+      if (msg) {
+        msg.textContent = `Error: ${err.message}`;
+        msg.style.color = '#dc3545';
+      }
+      console.error('Login error:', err);
+    } finally {
+      // Restaurar el botón
+      submitBtn.textContent = originalText;
+      validateForm(); // Esto habilitará el botón si los datos siguen siendo válidos
+    }
+  });
 }
 
+/**
+ * Initialize the "dashboard" view.
+ * ACTUALIZADA para proteger con autenticación
+ */
 function initDashboard() {
   const openBtn = document.querySelector('.create-task-btn');
   const modal = document.getElementById('createTask');
@@ -168,6 +332,35 @@ function initDashboard() {
     form.reset();
     
   });
+
+  // Verificar autenticación antes de mostrar dashboard
+  if (!isAuthenticated()) {
+    console.log('Usuario no autenticado, redirigiendo a sign-in');
+    location.hash = '#/sign-in';
+    return;
+  }
+
+  console.log('Dashboard inicializado para usuario:', getCurrentUser());
+
+  // Buscar botón de logout si existe
+  const logoutBtn = document.getElementById('logoutBtn') || document.querySelector('[data-action="logout"]');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      try {
+        await logoutUser();
+        console.log('Logout exitoso');
+      } catch (error) {
+        console.error('Error durante logout:', error);
+        // Aún así limpiar y redirigir
+        localStorage.clear();
+        location.hash = '#/sign-in';
+      }
+    });
+  }
+
+  // Aquí puedes agregar el resto de la lógica del dashboard
+  // Por ejemplo, cargar las tareas del usuario, mostrar su perfil, etc.
 }
 
 /**
