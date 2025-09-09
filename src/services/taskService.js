@@ -1,16 +1,22 @@
-import { http } from '../api/http.js';
+import { http } from "../api/http.js";
 
 /**
  * Get all tasks for the authenticated user
  * @returns {Promise<Object[]>} Array of tasks
  */
 export async function getTasks() {
-  const token = localStorage.getItem('token');
-  return http.get('/tasks', {
+  const token = localStorage.getItem("token");
+  const tasks = await http.get("/tasks", {
     headers: {
-      'Authorization': `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   });
+
+  return tasks.map((t) => ({
+    ...t,
+    dueDate: t.date,
+    status: mapState(t.state),
+  }));
 }
 
 /**
@@ -23,12 +29,18 @@ export async function getTasks() {
  * @param {string} [taskData.priority] - Task priority (optional)
  * @returns {Promise<Object>} Created task
  */
-export async function createTask(taskData) {
-  const token = localStorage.getItem('token');
-  return http.post('/tasks', taskData, {
+export async function createTask({ title, detail, dueDate, status }) {
+  const token = localStorage.getItem("token");
+  const taskPayload = {
+    title,
+    detail,
+    date: dueDate,
+    state: mapStatus(status),
+  };
+  return http.post("/tasks", taskPayload, {
     headers: {
-      'Authorization': `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   });
 }
 
@@ -39,11 +51,11 @@ export async function createTask(taskData) {
  * @returns {Promise<Object>} Updated task
  */
 export async function updateTask(taskId, updates) {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   return http.put(`/tasks/${taskId}`, updates, {
     headers: {
-      'Authorization': `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   });
 }
 
@@ -53,11 +65,11 @@ export async function updateTask(taskId, updates) {
  * @returns {Promise<void>}
  */
 export async function deleteTask(taskId) {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   return http.del(`/tasks/${taskId}`, {
     headers: {
-      'Authorization': `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   });
 }
 
@@ -79,14 +91,40 @@ export async function getTaskStats() {
   try {
     const tasks = await getTasks();
     const stats = {
-      pending: tasks.filter(t => t.status === 'pending').length,
-      progress: tasks.filter(t => t.status === 'progress').length,
-      completed: tasks.filter(t => t.status === 'completed').length,
-      total: tasks.length
+      pending: tasks.filter((t) => t.status === "todo").length,
+      progress: tasks.filter((t) => t.status === "progress").length,
+      completed: tasks.filter((t) => t.status === "done").length,
+      total: tasks.length,
     };
     return stats;
   } catch (error) {
-    console.error('Error getting task stats:', error);
+    console.error("Error getting task stats:", error);
     return { pending: 0, progress: 0, completed: 0, total: 0 };
+  }
+}
+
+function mapStatus(status) {
+  switch (status) {
+    case "pending":
+      return "Por Hacer";
+    case "progress":
+      return "Haciendo";
+    case "completed":
+      return "Hecho";
+    default:
+      return "Por Hacer";
+  }
+}
+
+function mapState(state) {
+  switch (state) {
+    case "Por hacer":
+      return "todo";
+    case "Haciendo":
+      return "progress";
+    case "Hecho":
+      return "done";
+    default:
+      return "todo";
   }
 }
