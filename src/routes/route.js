@@ -278,9 +278,6 @@ function initSignin() {
  */
 
 
-// ===========================
-// INICIALIZAR DASHBOARD
-// ===========================
 async function initDashboard() {
   if (!isAuthenticated()) {
     location.hash = '#/sign-in';
@@ -307,8 +304,16 @@ async function initDashboard() {
 // ===========================
 async function loadTasksFromBackend() {
   try {
+    console.log('Iniciando carga de tareas...');
     const tasks = await getTasks(); // Función que obtiene tareas del backend
     console.log('Tareas recibidas:', tasks);
+
+    // Verificar que tasks sea un array
+    if (!Array.isArray(tasks)) {
+      console.error('Las tareas no son un array:', tasks);
+      showToast('Error: formato de datos incorrecto', 'error');
+      return;
+    }
 
     const columns = {
       pending: document.querySelector('.pending-column .task-list'),
@@ -316,66 +321,163 @@ async function loadTasksFromBackend() {
       completed: document.querySelector('.completed-column .task-list')
     };
 
-    // Limpiar columnas
-    Object.values(columns).forEach(col => col.innerHTML = '');
+    // Verificar que las columnas existan
+    Object.entries(columns).forEach(([key, col]) => {
+      if (!col) {
+        console.error(`Columna no encontrada: .${key}-column .task-list`);
+      }
+    });
 
-    // Agrupar tareas por estado
-    const tasksByStatus = {
-      pending: tasks.filter(t => t.status === 'pending'),
-      progress: tasks.filter(t => t.status === 'progress'),
-      completed: tasks.filter(t => t.status === 'completed')
+    // Limpiar columnas existentes
+    Object.values(columns).forEach(col => {
+      if (col) col.innerHTML = '';
+    });
+
+    // Normalizar estados de tareas (en caso de inconsistencias)
+    const normalizeStatus = (status) => {
+      const statusMap = {
+        'pending': 'pending',
+        'pendiente': 'pending',
+        'en_progreso': 'progress',
+        'progress': 'progress',
+        'in_progress': 'progress',
+        'completed': 'completed',
+        'completada': 'completed',
+        'done': 'completed'
+      };
+      return statusMap[status?.toLowerCase()] || 'pending';
     };
 
-    // Renderizar tareas
-    Object.entries(tasksByStatus).forEach(([status, list]) => {
-      const col = columns[status];
-      if (!col) return;
+    // Agrupar tareas por estado normalizado
+    const tasksByStatus = {
+      pending: [],
+      progress: [],
+      completed: []
+    };
 
-      if (list.length === 0) {
+    tasks.forEach(task => {
+      const normalizedStatus = normalizeStatus(task.status);
+      if (tasksByStatus[normalizedStatus]) {
+        tasksByStatus[normalizedStatus].push(task);
+      }
+    });
+
+    console.log('Tareas agrupadas:', tasksByStatus);
+
+    // Renderizar tareas en cada columna
+    Object.entries(tasksByStatus).forEach(([status, taskList]) => {
+      const col = columns[status];
+      if (!col) {
+        console.warn(`Columna no encontrada para estado: ${status}`);
+        return;
+      }
+
+      if (taskList.length === 0) {
         const emptyDiv = document.createElement('div');
         emptyDiv.className = 'empty-state';
+        emptyDiv.style.cssText = `
+          text-align: center;
+          color: #888;
+          padding: 20px;
+          font-style: italic;
+        `;
         emptyDiv.textContent = 'No hay tareas aún';
         col.appendChild(emptyDiv);
       } else {
-        list.forEach(task => col.appendChild(createTaskCard(task)));
+        taskList.forEach(task => {
+          const taskCard = createTaskCard(task);
+          if (taskCard) {
+            col.appendChild(taskCard);
+          }
+        });
       }
     });
 
     // Actualizar contadores
-    document.querySelector('.pending-column .column-count').textContent = tasksByStatus.pending.length;
-    document.querySelector('.progress-column .column-count').textContent = tasksByStatus.progress.length;
-    document.querySelector('.completed-column .column-count').textContent = tasksByStatus.completed.length;
+    updateColumnCounts(tasksByStatus);
+
+    console.log('Tareas renderizadas correctamente');
 
   } catch (err) {
-    console.error(err);
-    showToast('Error cargando tareas', 'error');
+    console.error('Error cargando tareas:', err);
+    showToast('Error cargando tareas: ' + (err.message || err), 'error');
   }
+}
+
+// ===========================
+// ACTUALIZAR CONTADORES
+// ===========================
+function updateColumnCounts(tasksByStatus) {
+  const counters = {
+    pending: document.querySelector('.pending-column .column-count'),
+    progress: document.querySelector('.progress-column .column-count'),
+    completed: document.querySelector('.completed-column .column-count')
+  };
+
+  Object.entries(counters).forEach(([status, counter]) => {
+    if (counter && tasksByStatus[status]) {
+      counter.textContent = tasksByStatus[status].length;
+    }
+  });
 }
 
 // ===========================
 // CREAR TARJETA DE TAREA
 // ===========================
 function createTaskCard(task) {
+  if (!task) {
+    console.error('Task es null o undefined');
+    return null;
+  }
+
   const card = document.createElement('div');
   card.className = 'task-card';
-  card.dataset.taskId = task.id;
+  card.dataset.taskId = task.id || task._id || '';
+
+  // Validar datos de la tarea
+  const title = task.title || 'Sin título';
+  const detail = task.detail || task.description || '';
 
   let dateHtml = '';
   if (task.dueDate) {
-    const d = new Date(task.dueDate);
-    dateHtml = `<div class="task-datetime">📅 ${d.toLocaleDateString()} ⏰ ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>`;
+    try {
+      const d = new Date(task.dueDate);
+      if (!isNaN(d.getTime())) {
+        const dateStr = d.toLocaleDateString('es-ES');
+        const timeStr = d.toLocaleTimeString('es-ES', {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        dateHtml = `<div class="task-datetime">📅 ${dateStr} ⏰ ${timeStr}</div>`;
+      }
+    } catch (err) {
+      console.warn('Error procesando fecha de tarea:', err);
+    }
   }
 
   card.innerHTML = `
-        <div class="task-options">
-            <button class="task-option-btn edit-btn" title="Editar">✏️</button>
-            <button class="task-option-btn delete-btn" title="Eliminar">🗑️</button>
-        </div>
-        <div class="task-title">${task.title}</div>
-        <div class="task-description">${task.detail || ''}</div>
-        ${dateHtml}
-    `;
+    <div class="task-options">
+      <button class="task-option-btn edit-btn" title="Editar">✏️</button>
+      <button class="task-option-btn delete-btn" title="Eliminar">🗑️</button>
+    </div>
+    <div class="task-title">${escapeHtml(title)}</div>
+    <div class="task-description">${escapeHtml(detail)}</div>
+    ${dateHtml}
+  `;
+
+  // Hacer las tarjetas arrastrables (opcional)
+  card.draggable = true;
+
   return card;
+}
+
+// ===========================
+// ESCAPAR HTML PARA SEGURIDAD
+// ===========================
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
 }
 
 // ===========================
@@ -400,7 +502,11 @@ function initUserDropdown() {
   const logoutOption = document.getElementById('logoutOption');
   if (logoutOption) {
     logoutOption.addEventListener('click', async () => {
-      try { await logoutUser(); } catch (err) { console.warn(err); }
+      try {
+        await logoutUser();
+      } catch (err) {
+        console.warn('Error en logout:', err);
+      }
       localStorage.clear();
       sessionStorage.clear();
       location.hash = '#/sign-in';
@@ -418,12 +524,23 @@ function initCreateTaskModal() {
   const closeBtn = modal?.querySelector('.close-modal');
   const form = document.getElementById('createTaskForm');
   const cancelBtn = document.getElementById('cancelTaskBtn');
-  if (!openBtn || !modal || !form) return;
 
-  openBtn.addEventListener('click', () => { modal.style.display = 'block'; form.reset(); });
+  if (!openBtn || !modal || !form) {
+    console.warn('Elementos del modal no encontrados');
+    return;
+  }
+
+  openBtn.addEventListener('click', () => {
+    modal.style.display = 'block';
+    form.reset();
+  });
+
   closeBtn?.addEventListener('click', () => modal.style.display = 'none');
   cancelBtn?.addEventListener('click', () => modal.style.display = 'none');
-  modal.addEventListener('click', e => { if (e.target === modal) modal.style.display = 'none'; });
+
+  modal.addEventListener('click', e => {
+    if (e.target === modal) modal.style.display = 'none';
+  });
 
   form.addEventListener('submit', async e => {
     e.preventDefault();
@@ -435,22 +552,34 @@ function initCreateTaskModal() {
     try {
       const data = new FormData(form);
       const currentUser = getCurrentUser();
+
+      if (!currentUser?.email) {
+        throw new Error('Usuario no autenticado');
+      }
+
       const taskData = {
-        title: data.get('taskTitle').trim(),
-        detail: data.get('taskDesc').trim(),
-        status: data.get('taskStatus'),
-        dueDate: data.get('taskDate') ? `${data.get('taskDate')}T${data.get('taskTime') || '00:00'}:00` : null,
+        title: data.get('taskTitle')?.trim() || '',
+        detail: data.get('taskDesc')?.trim() || '',
+        status: data.get('taskStatus') || 'pending',
+        dueDate: data.get('taskDate') ?
+          `${data.get('taskDate')}T${data.get('taskTime') || '00:00'}:00` : null,
         user_email: currentUser.email
       };
 
+      if (!taskData.title) {
+        throw new Error('El título de la tarea es obligatorio');
+      }
+
+      console.log('Creando tarea:', taskData);
       await createTask(taskData);
       await loadTasksFromBackend();
       modal.style.display = 'none';
       form.reset();
-      showToast('✅ Tarea creada', 'success');
+      showToast('✅ Tarea creada exitosamente', 'success');
+
     } catch (err) {
-      console.error(err);
-      showToast('❌ Error al crear tarea', 'error');
+      console.error('Error creando tarea:', err);
+      showToast('❌ Error al crear tarea: ' + (err.message || err), 'error');
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = originalText;
@@ -465,34 +594,49 @@ function initTaskActions() {
   document.addEventListener('click', async e => {
     const card = e.target.closest('.task-card');
     if (!card) return;
+
     const taskId = card.dataset.taskId;
+    if (!taskId) {
+      console.error('ID de tarea no encontrado');
+      return;
+    }
 
     if (e.target.classList.contains('delete-btn')) {
       if (!confirm('¿Seguro que quieres eliminar esta tarea?')) return;
+
       try {
         await deleteTask(taskId);
         showToast('🗑️ Tarea eliminada', 'success');
         await loadTasksFromBackend();
       } catch (err) {
-        console.error(err);
-        showToast('❌ Error eliminando', 'error');
+        console.error('Error eliminando tarea:', err);
+        showToast('❌ Error eliminando: ' + (err.message || err), 'error');
       }
     }
 
     if (e.target.classList.contains('edit-btn')) {
-      const title = card.querySelector('.task-title').textContent;
-      const desc = card.querySelector('.task-description').textContent;
-      const newTitle = prompt('Nuevo título:', title);
-      if (newTitle === null) return;
-      const newDesc = prompt('Nueva descripción:', desc);
+      const titleEl = card.querySelector('.task-title');
+      const descEl = card.querySelector('.task-description');
+
+      const currentTitle = titleEl?.textContent || '';
+      const currentDesc = descEl?.textContent || '';
+
+      const newTitle = prompt('Nuevo título:', currentTitle);
+      if (newTitle === null || newTitle.trim() === '') return;
+
+      const newDesc = prompt('Nueva descripción:', currentDesc);
       if (newDesc === null) return;
+
       try {
-        await updateTask(taskId, { title: newTitle.trim(), detail: newDesc.trim() });
+        await updateTask(taskId, {
+          title: newTitle.trim(),
+          detail: newDesc.trim()
+        });
         showToast('✏️ Tarea actualizada', 'success');
         await loadTasksFromBackend();
       } catch (err) {
-        console.error(err);
-        showToast('❌ Error actualizando', 'error');
+        console.error('Error actualizando tarea:', err);
+        showToast('❌ Error actualizando: ' + (err.message || err), 'error');
       }
     }
   });
@@ -505,16 +649,33 @@ function showToast(msg, type = 'info') {
   const toast = document.createElement('div');
   toast.textContent = msg;
   toast.style.cssText = `
-        position: fixed; top: 20px; right: 20px;
-        background: ${type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#007bff'};
-        color: white; padding: 12px 20px; border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.3); z-index: 1000; opacity: 0;
-        transition: opacity 0.3s ease;
-    `;
+    position: fixed; top: 20px; right: 20px;
+    background: ${type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#007bff'};
+    color: white; padding: 12px 20px; border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3); z-index: 1000; opacity: 0;
+    transition: opacity 0.3s ease; max-width: 300px;
+  `;
+
   document.body.appendChild(toast);
   requestAnimationFrame(() => toast.style.opacity = '1');
+
   setTimeout(() => {
     toast.style.opacity = '0';
     toast.addEventListener('transitionend', () => toast.remove());
   }, 3000);
+}
+
+// ===========================
+// FUNCIÓN DE DEBUG (OPCIONAL)
+// ===========================
+function debugDashboard() {
+  console.log('=== DEBUG DASHBOARD ===');
+  console.log('Columnas encontradas:');
+  console.log('- Pending:', document.querySelector('.pending-column .task-list'));
+  console.log('- Progress:', document.querySelector('.progress-column .task-list'));
+  console.log('- Completed:', document.querySelector('.completed-column .task-list'));
+  console.log('Modal elementos:');
+  console.log('- Create btn:', document.querySelector('.create-task-btn'));
+  console.log('- Modal:', document.getElementById('createTask'));
+  console.log('- Form:', document.getElementById('createTaskForm'));
 }
