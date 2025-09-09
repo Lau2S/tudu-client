@@ -206,7 +206,7 @@ function initSignin() {
   const modal = document.getElementById('recoveryPassword');
   const cancelBtn = document.getElementById('cancelTaskBtn');
   const closeBtn = modal?.querySelector('.close-modal');
-  
+
   if (forgotLink && modal) {
     forgotLink.addEventListener('click', function(e) {
       e.preventDefault();
@@ -222,8 +222,6 @@ function initSignin() {
 
   closeBtn?.addEventListener('click', () => modal.style.display = 'none');
   cancelBtn?.addEventListener('click', () => modal.style.display = 'none');
-
-
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
