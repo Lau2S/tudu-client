@@ -1,20 +1,3 @@
-<!-- <div class="container">
-  <article class="card">
-    <header class="toolbar">
-      <a class="link" href="#/home">← Volver</a>
-    </header>
-    <h1>Mis tareas</h1>
-    <form id="todoForm" class="form" autocomplete="off">
-      <div class="row">
-        <label for="newTodo">Nueva tarea</label>
-        <input id="newTodo" name="title" type="text" placeholder="Comprar pan…" required minlength="2" />
-      </div>
-      <button class="btn" type="submit">Agregar</button>
-    </form>
-    <ul id="todoList"></ul>
-  </article>
-</div> -->
-
 <header class="header">
     <div class="logo">
         <img src="/public/logo_tudu.png" alt="Tudu Logo" />
@@ -38,76 +21,72 @@
 
 <main class="main-dashboard">
     <div class="kanban-board">
+        <!-- Pendientes -->
         <div class="kanban-column pending-column">
             <div class="column-header">
                 <div class="column-icon">○</div>
                 <h2 class="column-title">Pendientes</h2>
-                <span class="column-count">2</span>
+                <span class="column-count">0</span>
             </div>
             <div class="task-list">
-                <div class="empty-state">
-                    No hay tareas aún
-                </div>
+                <div class="empty-state">No hay tareas aún</div>
             </div>
         </div>
-        <!-- Tareas en Progreso -->
+
+        <!-- En progreso -->
         <div class="kanban-column progress-column">
             <div class="column-header">
                 <div class="column-icon">◔</div>
                 <h2 class="column-title">En Progreso</h2>
-                <span class="column-count">1</span>
+                <span class="column-count">0</span>
             </div>
             <div class="task-list">
-                <div class="empty-state">
-                    No hay tareas aún
-                </div>
+                <div class="empty-state">No hay tareas aún</div>
             </div>
         </div>
 
-        <!-- Tareas Terminadas -->
+        <!-- Terminadas -->
         <div class="kanban-column completed-column">
             <div class="column-header">
                 <div class="column-icon">●</div>
                 <h2 class="column-title">Terminadas</h2>
-                <span class="column-count">2</span>
+                <span class="column-count">0</span>
             </div>
             <div class="task-list">
-                <div class="empty-state">
-                    No hay tareas aún
-                </div>
+                <div class="empty-state">No hay tareas aún</div>
             </div>
         </div>
     </div>
 
-        <button class="create-task-btn">Crear Tarea</button>
+    <button class="create-task-btn">Crear Tarea</button>
 </main>
 
-<!-- Ventana emergente para crear tarea -->
+<!-- Modal para crear tarea -->
 <div id="createTask" class="modal" style="display: none;">
     <div class="modal-content">
         <span class="close-modal">&times;</span>
-        <h2 class="text">Crear Nueva Tarea</h2>
-        <form class="regitration-card" id="createTaskForm" autocomplete="off">
-
+        <h2>Crear Nueva Tarea</h2>
+        <form id="createTaskForm" autocomplete="off">
             <div class="form-group">
                 <label for="taskTitle">Título:</label>
-                <input id="taskTitle" name="taskTitle" type="text" placeholder="Ingresa el titulo de la tarea" required />
+                <input id="taskTitle" name="taskTitle" type="text" placeholder="Ingresa el título de la tarea"
+                    required />
             </div>
 
             <div class="form-group">
                 <label for="taskDesc">Descripción:</label>
-                <textarea id="taskDesc" name="taskDesc" placeholder="Agrega la Descripción de tu tarea (Opcional)"></textarea>
+                <textarea id="taskDesc" name="taskDesc" placeholder="Descripción opcional"></textarea>
             </div>
 
             <div class="name-row">
                 <div class="form-group">
                     <label for="taskDate">Fecha:</label>
                     <input id="taskDate" name="taskDate" type="date" />
-                </div>  
+                </div>
                 <div class="form-group">
                     <label for="taskTime">Hora:</label>
                     <input id="taskTime" name="taskTime" type="time" />
-                </div>  
+                </div>
             </div>
 
             <div class="form-group">
@@ -117,8 +96,8 @@
                     <option value="progress">En Progreso</option>
                     <option value="completed">Terminada</option>
                 </select>
-
             </div>
+
             <div class="buttons-modal">
                 <button type="button" id="cancelTaskBtn">Cancelar</button>
                 <button type="submit">Guardar</button>

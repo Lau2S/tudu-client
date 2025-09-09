@@ -1,4 +1,5 @@
 import { registerUser, loginUser, logoutUser, isAuthenticated, getCurrentUser } from '../services/userService.js';
+import { getTasks, createTask, updateTask, deleteTask, updateTaskStatus } from '../services/taskService.js';
 
 const app = document.getElementById('app');
 
@@ -272,136 +273,248 @@ function initSignin() {
  * Initialize the "dashboard" view.
  * ACTUALIZADA para proteger con autenticación
  */
-function initDashboard() {
-  // Verificar autenticación antes de mostrar dashboard
+/**
+ * Mostrar notificación toast
+ */
+
+
+// ===========================
+// INICIALIZAR DASHBOARD
+// ===========================
+async function initDashboard() {
   if (!isAuthenticated()) {
-    console.log('Usuario no autenticado, redirigiendo a sign-in');
     location.hash = '#/sign-in';
     return;
   }
 
-  console.log('Dashboard inicializado para usuario:', getCurrentUser());
+  const currentUser = getCurrentUser();
+  const userNameEl = document.querySelector('.user-name');
+  const userAvatar = document.querySelector('.user-avatar');
 
-  // ---------------------------
-  // MENÚ DESPLEGABLE DE USUARIO CON LOGOUT
-  // ---------------------------
-  const userProfile = document.querySelector('.user-profile');
-  if (userProfile) {
-    const dropdownMenu = userProfile.querySelector('.user-dropdown');
-
-    // Mostrar/ocultar menú al hacer clic
-    userProfile.addEventListener('click', (e) => {
-      e.stopPropagation();
-      dropdownMenu.classList.toggle('active');
-      userProfile.classList.toggle('active'); // Flecha gira
-    });
-
-    // Cerrar menú al hacer clic fuera
-    document.addEventListener('click', () => {
-      dropdownMenu.classList.remove('active');
-      userProfile.classList.remove('active');
-    });
-
-    // Opciones del menú
-    const profileOption = document.getElementById('profileOption');
-    const logoutOption = document.getElementById('logoutOption');
-
-    if (profileOption) {
-      profileOption.addEventListener('click', () => {
-        alert('Ir a perfil'); // Aquí puedes redirigir a tu página de perfil
-        dropdownMenu.classList.remove('active');
-        userProfile.classList.remove('active');
-      });
-    }
-
-    if (logoutOption) {
-      logoutOption.addEventListener('click', async () => {
-        try {
-          // Llamada a tu servicio real de logout
-          await logoutUser(); // Debe limpiar token y sesión en backend
-          console.log('Logout exitoso');
-
-          // Limpiar almacenamiento local y sesión
-          localStorage.clear();
-          sessionStorage.clear();
-
-          // Redirigir al login
-          location.hash = '#/sign-in';
-        } catch (error) {
-          console.error('Error durante logout:', error);
-          localStorage.clear();
-          sessionStorage.clear();
-          location.hash = '#/sign-in';
-        }
-      });
-    }
+  if (userNameEl && userAvatar && currentUser?.email) {
+    userNameEl.textContent = currentUser.email.split('@')[0];
+    userAvatar.textContent = currentUser.email[0].toUpperCase();
   }
 
-  // ---------------------------
-  // MODAL DE CREAR TAREA
-  // ---------------------------
+  await loadTasksFromBackend();
+  initUserDropdown();
+  initCreateTaskModal();
+  initTaskActions();
+}
+
+// ===========================
+// CARGAR TAREAS DESDE BACKEND
+// ===========================
+async function loadTasksFromBackend() {
+  try {
+    const tasks = await getTasks(); // Función que obtiene tareas del backend
+    console.log('Tareas recibidas:', tasks);
+
+    const columns = {
+      pending: document.querySelector('.pending-column .task-list'),
+      progress: document.querySelector('.progress-column .task-list'),
+      completed: document.querySelector('.completed-column .task-list')
+    };
+
+    // Limpiar columnas
+    Object.values(columns).forEach(col => col.innerHTML = '');
+
+    // Agrupar tareas por estado
+    const tasksByStatus = {
+      pending: tasks.filter(t => t.status === 'pending'),
+      progress: tasks.filter(t => t.status === 'progress'),
+      completed: tasks.filter(t => t.status === 'completed')
+    };
+
+    // Renderizar tareas
+    Object.entries(tasksByStatus).forEach(([status, list]) => {
+      const col = columns[status];
+      if (!col) return;
+
+      if (list.length === 0) {
+        const emptyDiv = document.createElement('div');
+        emptyDiv.className = 'empty-state';
+        emptyDiv.textContent = 'No hay tareas aún';
+        col.appendChild(emptyDiv);
+      } else {
+        list.forEach(task => col.appendChild(createTaskCard(task)));
+      }
+    });
+
+    // Actualizar contadores
+    document.querySelector('.pending-column .column-count').textContent = tasksByStatus.pending.length;
+    document.querySelector('.progress-column .column-count').textContent = tasksByStatus.progress.length;
+    document.querySelector('.completed-column .column-count').textContent = tasksByStatus.completed.length;
+
+  } catch (err) {
+    console.error(err);
+    showToast('Error cargando tareas', 'error');
+  }
+}
+
+// ===========================
+// CREAR TARJETA DE TAREA
+// ===========================
+function createTaskCard(task) {
+  const card = document.createElement('div');
+  card.className = 'task-card';
+  card.dataset.taskId = task.id;
+
+  let dateHtml = '';
+  if (task.dueDate) {
+    const d = new Date(task.dueDate);
+    dateHtml = `<div class="task-datetime">📅 ${d.toLocaleDateString()} ⏰ ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>`;
+  }
+
+  card.innerHTML = `
+        <div class="task-options">
+            <button class="task-option-btn edit-btn" title="Editar">✏️</button>
+            <button class="task-option-btn delete-btn" title="Eliminar">🗑️</button>
+        </div>
+        <div class="task-title">${task.title}</div>
+        <div class="task-description">${task.detail || ''}</div>
+        ${dateHtml}
+    `;
+  return card;
+}
+
+// ===========================
+// MENU USUARIO Y LOGOUT
+// ===========================
+function initUserDropdown() {
+  const userProfile = document.querySelector('.user-profile');
+  if (!userProfile) return;
+  const dropdown = userProfile.querySelector('.user-dropdown');
+
+  userProfile.addEventListener('click', e => {
+    e.stopPropagation();
+    dropdown.classList.toggle('active');
+    userProfile.classList.toggle('active');
+  });
+
+  document.addEventListener('click', () => {
+    dropdown.classList.remove('active');
+    userProfile.classList.remove('active');
+  });
+
+  const logoutOption = document.getElementById('logoutOption');
+  if (logoutOption) {
+    logoutOption.addEventListener('click', async () => {
+      try { await logoutUser(); } catch (err) { console.warn(err); }
+      localStorage.clear();
+      sessionStorage.clear();
+      location.hash = '#/sign-in';
+      showToast('Sesión cerrada correctamente', 'success');
+    });
+  }
+}
+
+// ===========================
+// MODAL CREAR TAREA
+// ===========================
+function initCreateTaskModal() {
   const openBtn = document.querySelector('.create-task-btn');
   const modal = document.getElementById('createTask');
-  const closeBtn = modal.querySelector('.close-modal');
+  const closeBtn = modal?.querySelector('.close-modal');
   const form = document.getElementById('createTaskForm');
   const cancelBtn = document.getElementById('cancelTaskBtn');
+  if (!openBtn || !modal || !form) return;
 
-  // Mostrar modal
-  openBtn.addEventListener('click', () => {
-    modal.style.display = 'block';
-  });
+  openBtn.addEventListener('click', () => { modal.style.display = 'block'; form.reset(); });
+  closeBtn?.addEventListener('click', () => modal.style.display = 'none');
+  cancelBtn?.addEventListener('click', () => modal.style.display = 'none');
+  modal.addEventListener('click', e => { if (e.target === modal) modal.style.display = 'none'; });
 
-  // Cerrar modal con la X
-  closeBtn.addEventListener('click', () => {
-    modal.style.display = 'none';
-  });
-
-  cancelBtn.addEventListener('click', () => {
-    modal.style.display = 'none';
-  });
-
-  // Manejar envío del formulario
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async e => {
     e.preventDefault();
-    const title = form.taskTitle.value.trim();
-    const desc = form.taskDesc.value.trim();
-    const date = form.taskDate.value;
-    const time = form.taskTime.value;
-    const status = form.taskStatus.value;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Guardando...';
 
-    let datetime = '';
-    if (date && time) datetime = `Fecha: ${date}, ${time}`;
-    else if (date) datetime = `Fecha: ${date}`;
-    else if (time) datetime = `Hora: ${time}`;
+    try {
+      const data = new FormData(form);
+      const currentUser = getCurrentUser();
+      const taskData = {
+        title: data.get('taskTitle').trim(),
+        detail: data.get('taskDesc').trim(),
+        status: data.get('taskStatus'),
+        dueDate: data.get('taskDate') ? `${data.get('taskDate')}T${data.get('taskTime') || '00:00'}:00` : null,
+        user_email: currentUser.email
+      };
 
-    // Buscar el contenedor de columna según el estado
-    let columnClass = '';
-    if (status === 'pending') columnClass = '.pending-column .task-list';
-    else if (status === 'progress') columnClass = '.progress-column .task-list';
-    else if (status === 'completed') columnClass = '.completed-column .task-list';
-    const column = document.querySelector(columnClass);
-
-    const emptyMsg = column.querySelector('.empty-state');
-    if (emptyMsg) emptyMsg.style.display = 'none';
-
-    // Crear la tarjeta de tarea
-    if (column) {
-      const card = document.createElement('div');
-      card.className = 'task-card';
-      card.innerHTML = `
-        <div class="task-options">
-          <button class="task-option-btn">✏️</button>
-          <button class="task-option-btn">🗑️</button>
-        </div>
-        <div class="task-title">${title}</div>
-        <div class="task-description">${desc}</div>
-        <div class="task-datetime">${datetime}</div>
-      `;
-      column.prepend(card);
+      await createTask(taskData);
+      await loadTasksFromBackend();
+      modal.style.display = 'none';
+      form.reset();
+      showToast('✅ Tarea creada', 'success');
+    } catch (err) {
+      console.error(err);
+      showToast('❌ Error al crear tarea', 'error');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
     }
-
-    modal.style.display = 'none';
-    form.reset();
   });
 }
 
+// ===========================
+// EDITAR / ELIMINAR TAREAS
+// ===========================
+function initTaskActions() {
+  document.addEventListener('click', async e => {
+    const card = e.target.closest('.task-card');
+    if (!card) return;
+    const taskId = card.dataset.taskId;
+
+    if (e.target.classList.contains('delete-btn')) {
+      if (!confirm('¿Seguro que quieres eliminar esta tarea?')) return;
+      try {
+        await deleteTask(taskId);
+        showToast('🗑️ Tarea eliminada', 'success');
+        await loadTasksFromBackend();
+      } catch (err) {
+        console.error(err);
+        showToast('❌ Error eliminando', 'error');
+      }
+    }
+
+    if (e.target.classList.contains('edit-btn')) {
+      const title = card.querySelector('.task-title').textContent;
+      const desc = card.querySelector('.task-description').textContent;
+      const newTitle = prompt('Nuevo título:', title);
+      if (newTitle === null) return;
+      const newDesc = prompt('Nueva descripción:', desc);
+      if (newDesc === null) return;
+      try {
+        await updateTask(taskId, { title: newTitle.trim(), detail: newDesc.trim() });
+        showToast('✏️ Tarea actualizada', 'success');
+        await loadTasksFromBackend();
+      } catch (err) {
+        console.error(err);
+        showToast('❌ Error actualizando', 'error');
+      }
+    }
+  });
+}
+
+// ===========================
+// NOTIFICACIONES TOAST
+// ===========================
+function showToast(msg, type = 'info') {
+  const toast = document.createElement('div');
+  toast.textContent = msg;
+  toast.style.cssText = `
+        position: fixed; top: 20px; right: 20px;
+        background: ${type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#007bff'};
+        color: white; padding: 12px 20px; border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3); z-index: 1000; opacity: 0;
+        transition: opacity 0.3s ease;
+    `;
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => toast.style.opacity = '1');
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.addEventListener('transitionend', () => toast.remove());
+  }, 3000);
+}
