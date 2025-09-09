@@ -70,7 +70,7 @@ export async function loginUser({ email, password }) {
  * @throws {Error} If the request fails.
  */
 export async function getUserProfile(userId) {
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
   return http.get(`/users/${userId}`, {
     headers: {
       'Authorization': `Bearer ${token}`
@@ -90,7 +90,7 @@ export async function getUserProfile(userId) {
  * @throws {Error} If the update fails.
  */
 export async function updateUserProfile(userId, updates) {
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
   return http.put(`/users/${userId}`, updates, {
     headers: {
       'Authorization': `Bearer ${token}`
@@ -109,7 +109,7 @@ export async function updateUserProfile(userId, updates) {
  * @throws {Error} If the deletion fails.
  */
 export async function deleteUser(userId) {
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
   return http.del(`/users/${userId}`, {
     headers: {
       'Authorization': `Bearer ${token}`
@@ -122,7 +122,7 @@ export async function deleteUser(userId) {
  * Llama al endpoint de logout del backend y limpia el localStorage
  */
 export async function logoutUser() {
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
   if (token) {
     try {
       await http.post('/users/auth/logout', {}, {
@@ -135,9 +135,9 @@ export async function logoutUser() {
     }
   }
   // Limpiar localStorage
-  localStorage.removeItem('token');
-  localStorage.removeItem('userId');
-  localStorage.removeItem('userEmail');
+  sessionStorage.removeItem('token');
+  sessionStorage.removeItem('userId');
+  sessionStorage.removeItem('userEmail');
 
   // Redirigir al sign-in
   location.hash = '#/sign-in';
@@ -148,7 +148,7 @@ export async function logoutUser() {
  * Verifica si el token existe y no ha expirado
  */
 export function isAuthenticated() {
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
   if (!token) return false;
 
   try {
@@ -157,7 +157,7 @@ export function isAuthenticated() {
     return tokenPayload.exp > now;
   } catch (error) {
     console.error('Error verificando token:', error);
-    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
     return false;
   }
 }
@@ -166,7 +166,7 @@ export function isAuthenticated() {
  * Get current user info from token
  */
 export function getCurrentUser() {
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
   if (!token) return null;
 
   try {

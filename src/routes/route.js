@@ -233,13 +233,13 @@ function initSignin() {
       }
 
       // Guardar JWT token (tu backend devuelve { message: "Login successful", token: "..." })
-      localStorage.setItem('token', data.token);
+      sessionStorage.setItem('token', data.token);
 
       // Decodificar token para guardar info del usuario
       try {
         const tokenPayload = JSON.parse(atob(data.token.split('.')[1]));
-        localStorage.setItem('userId', tokenPayload.userId);
-        localStorage.setItem('userEmail', tokenPayload.email);
+        sessionStorage.setItem('userId', tokenPayload.userId);
+        sessionStorage.setItem('userEmail', tokenPayload.email);
         console.log('Usuario logueado:', { userId: tokenPayload.userId, email: tokenPayload.email });
       } catch (tokenError) {
         console.warn('No se pudo decodificar el token:', tokenError);
