@@ -12,7 +12,11 @@
     <label for="sign-in-email">Email</label>
     <input type="email" id="sign-in-email" name="email" placeholder="Ingrese su email" required>
 
-    <label for="sign-in-password">Contraseña</label>
+    <div class ="password-label-container">
+      <label for="sign-in-password">Contraseña</label>
+      <a href="#/reset-password" class="forgot-password-link">¿Olvidaste tu contraseña?</a>
+    </div>
+    
     <input type="password" id="sign-in-password" name="password" placeholder="Ingrese su contraseña" required>
 
     <button type="submit" id = "sign-in-button" disabled>Iniciar sesión</button>

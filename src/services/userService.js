@@ -70,7 +70,7 @@ export async function loginUser({ email, password }) {
  * @throws {Error} If the request fails.
  */
 export async function getUserProfile(userId) {
-  const token = sessionStorage.getItem('token');
+  const token = localStorage.getItem('token');
   return http.get(`/users/${userId}`, {
     headers: {
       'Authorization': `Bearer ${token}`
@@ -90,7 +90,7 @@ export async function getUserProfile(userId) {
  * @throws {Error} If the update fails.
  */
 export async function updateUserProfile(userId, updates) {
-  const token = sessionStorage.getItem('token');
+  const token = localStorage.getItem('token');
   return http.put(`/users/${userId}`, updates, {
     headers: {
       'Authorization': `Bearer ${token}`
@@ -148,7 +148,7 @@ export async function logoutUser() {
  * Verifica si el token existe y no ha expirado
  */
 export function isAuthenticated() {
-  const token = sessionStorage.getItem('token');
+  const token = localStorage.getItem('token');
   if (!token) return false;
 
   try {
@@ -166,7 +166,7 @@ export function isAuthenticated() {
  * Get current user info from token
  */
 export function getCurrentUser() {
-  const token = sessionStorage.getItem('token');
+  const token = localStorage.getItem('token');
   if (!token) return null;
 
   try {

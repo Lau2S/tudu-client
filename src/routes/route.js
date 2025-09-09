@@ -1,4 +1,5 @@
 import { registerUser, loginUser, logoutUser, isAuthenticated, getCurrentUser } from '../services/userService.js';
+import { getTasks, createTask, updateTask, deleteTask, updateTaskStatus } from '../services/taskService.js';
 
 const app = document.getElementById('app');
 
@@ -65,7 +66,6 @@ function initHome() {
 function initSignup() {
   const form = document.getElementById('sign-up-form');
   if (!form) return;
-  // Evitar doble inicialización si la vista se renderiza varias veces
   if (form.dataset.tuduInit === 'true') return;
   form.dataset.tuduInit = 'true';
 
@@ -77,15 +77,18 @@ function initSignup() {
   const ageInput = document.getElementById('age');
   const submitBtn = document.getElementById('sign-up-button') || form.querySelector('button[type="submit"]');
 
-  console.log('initSignup ejecutado', { form: !!form, nombre: !!nombreInput, apellido: !!apellidoInput, email: !!emailInput, pass: !!passInput, confirm: !!confirmInput, age: !!ageInput, submitBtn: !!submitBtn });
+  if (!emailInput || !passInput || !confirmInput || !ageInput || !submitBtn) return;
 
-  if (!emailInput || !passInput || !confirmInput || !ageInput || !submitBtn) {
-    console.warn('initSignup: faltan elementos del formulario, revisa los ids.');
-    return;
-  }
+  // Crear contenedor para error de confirmación si no existe
+  let confirmError = document.createElement('div');
+  confirmError.style.color = 'red';
+  confirmError.style.fontSize = '0.85rem';
+  confirmError.style.marginTop = '-0.5rem';
+  confirmError.style.marginBottom = '0.8rem';
+  confirmError.style.display = 'none';
+  confirmInput.parentNode.insertBefore(confirmError, confirmInput.nextSibling);
 
-  // Regexs
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // suficiente para validar formato
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
 
   function validateForm() {
@@ -99,7 +102,18 @@ function initSignup() {
 
     if (!emailRegex.test(email)) { valid = false; errors.push('email'); }
     if (!passwordRegex.test(password)) { valid = false; errors.push('password'); }
-    if (password !== confirm) { valid = false; errors.push('confirm'); }
+    if (password !== confirm) {
+      valid = false;
+      errors.push('confirm');
+
+      // Mostrar mensaje debajo del confirm password
+      confirmError.textContent = '❌ Las contraseñas no coinciden';
+      confirmError.style.display = 'block';
+    } else {
+      confirmError.textContent = '';
+      confirmError.style.display = 'none';
+    }
+
     if (!/^\d+$/.test(age) || Number(age) < 13) { valid = false; errors.push('age'); }
 
     submitBtn.disabled = !valid;
@@ -113,18 +127,14 @@ function initSignup() {
     console.log('validateForm ->', { valid, errors });
   }
 
-  // Añadir listeners (idempotente por data attr del form)
-  [emailInput, passInput, confirmInput, ageInput].forEach((input) => {
+  [emailInput, passInput, confirmInput, ageInput].forEach(input => {
     input.addEventListener('input', validateForm);
   });
 
-  // Inicializa el estado del botón
   validateForm();
 
-  // Submit handler
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    // opcional: volver a validar antes de enviar
     validateForm();
     if (submitBtn.disabled) return;
 
@@ -143,14 +153,13 @@ function initSignup() {
     } catch (err) {
       alert('❌ No se pudo registrar: ' + (err?.message || err));
       console.error('registerUser error', err);
-      // re-evaluar si debe habilitarse (por ejemplo campos aún válidos)
       validateForm();
     } finally {
-      // si campos válidos, validateForm dejará el botón habilitado; si no, quedará deshabilitado
       validateForm();
     }
   });
 }
+
 
 /**
  * Initialize the "sign-in" view.
@@ -160,7 +169,6 @@ function initSignin() {
   const form = document.getElementById('sign-in-form');
   const emailInput = document.getElementById('sign-in-email');
   const passInput = document.getElementById('sign-in-password');
-  const msg = document.getElementById('loginMsg');
   const submitBtn = form?.querySelector('button[type="submit"]');
 
   if (!form || !emailInput || !passInput || !submitBtn) {
@@ -168,98 +176,98 @@ function initSignin() {
     return;
   }
 
-  // Evitar doble inicialización
   if (form.dataset.tuduInit === 'true') return;
   form.dataset.tuduInit = 'true';
 
-  // Verificar si ya está autenticado al cargar la vista
   if (isAuthenticated()) {
     location.hash = '#/dashboard';
     return;
   }
 
-  // Deshabilitar botón de entrada inicialmente
   submitBtn.disabled = true;
 
-  // Validación en tiempo real
   function validateForm() {
     const email = emailInput.value.trim();
     const password = passInput.value.trim();
-
-    // Validar email formato RFC 5322
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const isValidEmail = emailRegex.test(email);
-
-    // Sólo habilitar si el correo y la contraseña están correctos
     const isValid = isValidEmail && password.length > 0;
+
     submitBtn.disabled = !isValid;
     submitBtn.classList.toggle('enabled', isValid);
-
-    // Limpiar mensaje anterior
-    if (msg) msg.textContent = '';
   }
 
   emailInput.addEventListener('input', validateForm);
   passInput.addEventListener('input', validateForm);
-
-  // Validar al cargar
   validateForm();
+
+  // Función para mostrar ventana emergente tipo toast
+  function showToast(message) {
+    let toast = document.createElement('div');
+    toast.textContent = message;
+    toast.style.position = 'fixed';
+    toast.style.top = '20px';
+    toast.style.right = '20px';
+    toast.style.backgroundColor = '#dc3545';
+    toast.style.color = '#fff';
+    toast.style.padding = '12px 20px';
+    toast.style.borderRadius = '8px';
+    toast.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+    toast.style.zIndex = '1000';
+    toast.style.opacity = '0';
+    toast.style.transition = 'opacity 0.3s ease';
+
+    document.body.appendChild(toast);
+
+    // Mostrar con animación
+    requestAnimationFrame(() => {
+      toast.style.opacity = '1';
+    });
+
+    // Desaparece después de 3 segundos
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.addEventListener('transitionend', () => toast.remove());
+    }, 3000);
+  }
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-
-    // Limpiar mensaje anterior
-    if (msg) msg.textContent = '';
-
-    // Validar una vez más
     validateForm();
     if (submitBtn.disabled) return;
 
-    // Deshabilitar botón y cambiar texto
     submitBtn.disabled = true;
     const originalText = submitBtn.textContent;
     submitBtn.textContent = 'Iniciando sesión...';
 
     try {
-      // Mandar credenciales al backend (usando la ruta correcta)
       const data = await loginUser({
         email: emailInput.value.trim(),
         password: passInput.value.trim()
       });
 
-      if (msg) {
-        msg.textContent = 'Inicio de sesión exitoso';
-        msg.style.color = '#28a745';
-      }
+      localStorage.setItem('token', data.token);
 
-      // Guardar JWT token (tu backend devuelve { message: "Login successful", token: "..." })
-      sessionStorage.setItem('token', data.token);
-
-      // Decodificar token para guardar info del usuario
       try {
         const tokenPayload = JSON.parse(atob(data.token.split('.')[1]));
-        sessionStorage.setItem('userId', tokenPayload.userId);
-        sessionStorage.setItem('userEmail', tokenPayload.email);
+        localStorage.setItem('userId', tokenPayload.userId);
+        localStorage.setItem('userEmail', tokenPayload.email);
         console.log('Usuario logueado:', { userId: tokenPayload.userId, email: tokenPayload.email });
       } catch (tokenError) {
         console.warn('No se pudo decodificar el token:', tokenError);
       }
 
-      // Redirigir al dashboard después de un breve delay
       setTimeout(() => (location.hash = '#/dashboard'), 1000);
     } catch (err) {
-      if (msg) {
-        msg.textContent = `Error: ${err.message}`;
-        msg.style.color = '#dc3545';
-      }
+      showToast('⚠️ Credenciales incorrectas');
       console.error('Login error:', err);
     } finally {
-      // Restaurar el botón
       submitBtn.textContent = originalText;
-      validateForm(); // Esto habilitará el botón si los datos siguen siendo válidos
+      validateForm();
     }
   });
 }
+
 
 /**
  * Initialize the "dashboard" view.
@@ -290,6 +298,140 @@ function initDashboard() {
   // Manejar envío del formulario
   form.addEventListener('submit', (e) => {
     e.preventDefault();
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Guardando...';
+
+    try {
+      const data = new FormData(form);
+      const currentUser = getCurrentUser();
+
+      if (!currentUser?.email) {
+        throw new Error('Usuario no autenticado');
+      }
+
+      const taskData = {
+        title: data.get('taskTitle')?.trim() || '',
+        detail: data.get('taskDesc')?.trim() || '',
+        status: data.get('taskStatus') || 'pending',
+        dueDate: data.get('taskDate') ?
+          `${data.get('taskDate')}T${data.get('taskTime') || '00:00'}:00` : null,
+        user_email: currentUser.email
+      };
+
+      if (!taskData.title) {
+        throw new Error('El título de la tarea es obligatorio');
+      }
+
+      console.log('Creando tarea:', taskData);
+      await createTask(taskData);
+      await loadTasksFromBackend();
+      modal.style.display = 'none';
+      form.reset();
+      showToast('✅ Tarea creada exitosamente', 'success');
+
+    } catch (err) {
+      console.error('Error creando tarea:', err);
+      showToast('❌ Error al crear tarea: ' + (err.message || err), 'error');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
+    }
+  });
+}
+
+// ===========================
+// EDITAR / ELIMINAR TAREAS
+// ===========================
+function initTaskActions() {
+  document.addEventListener('click', async e => {
+    const card = e.target.closest('.task-card');
+    if (!card) return;
+
+    const taskId = card.dataset.taskId;
+    if (!taskId) {
+      console.error('ID de tarea no encontrado');
+      return;
+    }
+
+    if (e.target.classList.contains('delete-btn')) {
+      if (!confirm('¿Seguro que quieres eliminar esta tarea?')) return;
+
+      try {
+        await deleteTask(taskId);
+        showToast('🗑️ Tarea eliminada', 'success');
+        await loadTasksFromBackend();
+      } catch (err) {
+        console.error('Error eliminando tarea:', err);
+        showToast('❌ Error eliminando: ' + (err.message || err), 'error');
+      }
+    }
+
+    if (e.target.classList.contains('edit-btn')) {
+      const titleEl = card.querySelector('.task-title');
+      const descEl = card.querySelector('.task-description');
+
+      const currentTitle = titleEl?.textContent || '';
+      const currentDesc = descEl?.textContent || '';
+
+      const newTitle = prompt('Nuevo título:', currentTitle);
+      if (newTitle === null || newTitle.trim() === '') return;
+
+      const newDesc = prompt('Nueva descripción:', currentDesc);
+      if (newDesc === null) return;
+
+      try {
+        await updateTask(taskId, {
+          title: newTitle.trim(),
+          detail: newDesc.trim()
+        });
+        showToast('✏️ Tarea actualizada', 'success');
+        await loadTasksFromBackend();
+      } catch (err) {
+        console.error('Error actualizando tarea:', err);
+        showToast('❌ Error actualizando: ' + (err.message || err), 'error');
+      }
+    }
+  });
+}
+
+// ===========================
+// NOTIFICACIONES TOAST
+// ===========================
+function showToast(msg, type = 'info') {
+  const toast = document.createElement('div');
+  toast.textContent = msg;
+  toast.style.cssText = `
+    position: fixed; top: 20px; right: 20px;
+    background: ${type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#007bff'};
+    color: white; padding: 12px 20px; border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3); z-index: 1000; opacity: 0;
+    transition: opacity 0.3s ease; max-width: 300px;
+  `;
+
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => toast.style.opacity = '1');
+
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.addEventListener('transitionend', () => toast.remove());
+  }, 3000);
+}
+
+// ===========================
+// FUNCIÓN DE DEBUG (OPCIONAL)
+// ===========================
+function debugDashboard() {
+  console.log('=== DEBUG DASHBOARD ===');
+  console.log('Columnas encontradas:');
+  console.log('- Pending:', document.querySelector('.pending-column .task-list'));
+  console.log('- Progress:', document.querySelector('.progress-column .task-list'));
+  console.log('- Completed:', document.querySelector('.completed-column .task-list'));
+  console.log('Modal elementos:');
+  console.log('- Create btn:', document.querySelector('.create-task-btn'));
+  console.log('- Modal:', document.getElementById('createTask'));
+  console.log('- Form:', document.getElementById('createTaskForm'));
     const title = form.taskTitle.value.trim();
     const desc = form.taskDesc.value.trim();
     const date = form.taskDate.value;
