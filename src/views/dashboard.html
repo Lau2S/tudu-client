@@ -35,23 +35,8 @@
                 <span class="column-count">2</span>
             </div>
             <div class="task-list">
-                <div class="task-card">
-                    <div class="task-options">
-                        <button class="task-option-btn">✏️</button>
-                        <button class="task-option-btn">🗑️</button>
-                    </div>
-                    <div class="task-title">Reunión equipo Integrador</div>
-                    <div class="task-description">Planificar cierre de sprint y revisar que este todo bien</div>
-                    <div class="task-datetime">Fecha: 08 Sep 2025, 5:00 PM</div>
-                </div>
-                <div class="task-card">
-                    <div class="task-options">
-                        <button class="task-option-btn">✏️</button>
-                        <button class="task-option-btn">🗑️</button>
-                    </div>
-                    <div class="task-title">Sprint 2</div>
-                    <div class="task-description">Hacer todas las funcionalidades para el primer Sprint</div>
-                    <div class="task-datetime">Fecha: 17 Sep 2025, 10:00 PM</div>
+                <div class="empty-state">
+                    No hay tareas aún
                 </div>
             </div>
         </div>
@@ -63,14 +48,8 @@
                 <span class="column-count">1</span>
             </div>
             <div class="task-list">
-                <div class="task-card">
-                    <div class="task-options">
-                        <button class="task-option-btn">✏️</button>
-                        <button class="task-option-btn">🗑️</button>
-                    </div>
-                    <div class="task-title">Terminar Sprint 1</div>
-                    <div class="task-description">Terminar todas las funcionalidades para el primer Sprint</div>
-                    <div class="task-datetime">Fecha: 09 Sep 2025, 10:00 AM</div>
+                <div class="empty-state">
+                    No hay tareas aún
                 </div>
             </div>
         </div>
@@ -83,28 +62,57 @@
                 <span class="column-count">2</span>
             </div>
             <div class="task-list">
-                <div class="task-card">
-                    <div class="task-options">
-                        <button class="task-option-btn">✏️</button>
-                        <button class="task-option-btn">🗑️</button>
-                    </div>
-                    <div class="task-title">Actualizar Taiga</div>
-                    <div class="task-description">Marcar que cosas se han hecho ya en el Taiga</div>
-                    <div class="task-datetime">Completada: 05 Sep 2025</div>
-                </div>
-                    
-                <div class="task-card">
-                    <div class="task-options">
-                        <button class="task-option-btn">✏️</button>
-                        <button class="task-option-btn">🗑️</button>
-                    </div>
-                    <div class="task-title">Registro de Reuniones</div>
-                    <div class="task-description">Tener los registros de las reuniones del equipo</div>
-                    <div class="task-datetime">Completada: 06 Sep 2025</div>
+                <div class="empty-state">
+                    No hay tareas aún
                 </div>
             </div>
         </div>
     </div>
 
-    <button class="create-task-btn">Crear Tarea</button>
+        <button class="create-task-btn">Crear Tarea</button>
 </main>
+
+<!-- Ventana emergente para crear tarea -->
+<div id="createTask" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2 class="text">Crear Nueva Tarea</h2>
+        <form class="regitration-card" id="createTaskForm" autocomplete="off">
+
+            <div class="form-group">
+                <label for="taskTitle">Título:</label>
+                <input id="taskTitle" name="taskTitle" type="text" placeholder="Ingresa el titulo de la tarea" required />
+            </div>
+
+            <div class="form-group">
+                <label for="taskDesc">Descripción:</label>
+                <textarea id="taskDesc" name="taskDesc" placeholder="Agrega la Descripción de tu tarea (Opcional)"></textarea>
+            </div>
+
+            <div class="name-row">
+                <div class="form-group">
+                    <label for="taskDate">Fecha:</label>
+                    <input id="taskDate" name="taskDate" type="date" />
+                </div>  
+                <div class="form-group">
+                    <label for="taskTime">Hora:</label>
+                    <input id="taskTime" name="taskTime" type="time" />
+                </div>  
+            </div>
+
+            <div class="form-group">
+                <label for="taskStatus">Estado:</label>
+                <select id="taskStatus" name="taskStatus" required>
+                    <option value="pending">Pendiente</option>
+                    <option value="progress">En Progreso</option>
+                    <option value="completed">Terminada</option>
+                </select>
+
+            </div>
+            <div class="buttons-modal">
+                <button type="button" id="cancelTaskBtn">Cancelar</button>
+                <button type="submit">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
