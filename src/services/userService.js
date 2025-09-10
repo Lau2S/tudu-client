@@ -245,3 +245,30 @@ export async function forgotPassword(email) {
   return http.post('/users/auth/forgot-password', { email });
 }
 
+/**
+ * Resets user password using a recovery token.
+ * @async
+ * @param {string} token - Password reset token from email link
+ * @param {Object} passwords - New password data
+ * @param {string} passwords.password - New password
+ * @param {string} passwords.confirmPassword - Password confirmation
+ * @returns {Promise<Object>} Server response confirming password reset
+ * @throws {Error} If token is invalid, expired, or passwords don't match
+ * @example
+ * try {
+ *   const response = await resetPassword('reset-token-123', {
+ *     password: 'NewSecurePass123!',
+ *     confirmPassword: 'NewSecurePass123!'
+ *   });
+ *   console.log(response.message); // "Contraseña actualizada"
+ * } catch (err) {
+ *   console.error("Password reset failed:", err.message);
+ * }
+ */
+export async function resetPassword(token, { password, confirmPassword }) {
+  return http.post(`/users/auth/reset-password/${token}`, {
+    password,
+    confirmPassword
+  });
+}
+
