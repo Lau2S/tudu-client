@@ -180,3 +180,59 @@ export function getCurrentUser() {
     return null;
   }
 }
+
+/**
+ * Request password reset for a user.
+ *
+ * Sends a POST request to the backend API (`/auth/forgot-password`)
+ * with the provided email address.
+ *
+ * @async
+ * @function forgotPassword
+ * @param {Object} params - Password reset request data.
+ * @param {string} params.email - The email address of the user.
+ * @returns {Promise<Object>} The response object returned by the API.
+ * @throws {Error} If the API responds with an error status or message.
+ *
+ * @example
+ * try {
+ *   const result = await forgotPassword({ email: "user@example.com" });
+ *   console.log("Reset email sent:", result.message);
+ * } catch (err) {
+ *   console.error("Password reset request failed:", err.message);
+ * }
+ */
+export async function forgotPassword({ email }) {
+  return http.post('/auth/forgot-password', { email });
+}
+
+/**
+ * Reset user password using a token.
+ *
+ * Sends a POST request to the backend API (`/auth/reset-password/:token`)
+ * with the new password and confirmation.
+ *
+ * @async
+ * @function resetPassword
+ * @param {Object} params - Password reset data.
+ * @param {string} params.token - The reset token received via email.
+ * @param {string} params.password - The new password.
+ * @param {string} params.confirmPassword - Password confirmation.
+ * @returns {Promise<Object>} The response object returned by the API.
+ * @throws {Error} If the API responds with an error status or message.
+ *
+ * @example
+ * try {
+ *   const result = await resetPassword({ 
+ *     token: "abc123", 
+ *     password: "newpass123", 
+ *     confirmPassword: "newpass123" 
+ *   });
+ *   console.log("Password reset successful:", result.message);
+ * } catch (err) {
+ *   console.error("Password reset failed:", err.message);
+ * }
+ */
+export async function resetPassword({ token, password, confirmPassword }) {
+  return http.post(`/auth/reset-password/${token}`, { password, confirmPassword });
+}

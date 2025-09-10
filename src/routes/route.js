@@ -4,6 +4,7 @@ import {
   logoutUser,
   isAuthenticated,
   getCurrentUser,
+  forgotPassword,
 } from "../services/userService.js";
 import {
   getTasks,
@@ -193,11 +194,17 @@ function initSignin() {
   const emailInput = document.getElementById("sign-in-email");
   const passInput = document.getElementById("sign-in-password");
   const submitBtn = form?.querySelector('button[type="submit"]');
+  
+  // Elementos del modal de forgot password
   const forgotLink = document.querySelector('.forgot-password-link');
   const modal = document.getElementById('recoveryPassword');
+  const modalForm = document.getElementById('createTaskForm');
+  const modalEmailInput = document.getElementById('forgotLink');
   const cancelBtn = document.getElementById('cancelTaskBtn');
   const closeBtn = modal?.querySelector('.close-modal');
   const sendEmailBtn = document.getElementById('sendEmail');
+
+  
 
   if (!form || !emailInput || !passInput || !submitBtn) {
     console.warn(
@@ -307,10 +314,6 @@ function initSignin() {
       validateForm();
     }
   });
-
-  
-
-
 }
 
 /**
