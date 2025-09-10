@@ -1,0 +1,107 @@
+<header class="header">
+    <div class="logo">
+        <img src="/public/logo_tudu.png" alt="Tudu Logo" />
+    </div>
+
+    <!-- PERFIL DE USUARIO -->
+    <div class="user-profile">
+        <div class="user-avatar">N</div>
+        <span class="user-name">Nombre</span>
+        <span class="dropdown-arrow">▼</span>
+
+        <!-- Menú desplegable -->
+        <div class="user-dropdown">
+            <ul>
+                <li id="profileOption">Perfil</li>
+                <li id="logoutOption">Cerrar sesión</li>
+            </ul>
+        </div>
+    </div>
+</header>
+
+<main class="main-dashboard">
+    <div class="kanban-board">
+        <!-- Pendientes -->
+        <div class="kanban-column pending-column">
+            <div class="column-header">
+                <div class="column-icon">○</div>
+                <h2 class="column-title">Pendientes</h2>
+                <span class="column-count">0</span>
+            </div>
+            <div class="task-list">
+                <div class="empty-state">No hay tareas aún</div>
+            </div>
+        </div>
+
+        <!-- En progreso -->
+        <div class="kanban-column progress-column">
+            <div class="column-header">
+                <div class="column-icon">◔</div>
+                <h2 class="column-title">En Progreso</h2>
+                <span class="column-count">0</span>
+            </div>
+            <div class="task-list">
+                <div class="empty-state">No hay tareas aún</div>
+            </div>
+        </div>
+
+        <!-- Terminadas -->
+        <div class="kanban-column completed-column">
+            <div class="column-header">
+                <div class="column-icon">●</div>
+                <h2 class="column-title">Terminadas</h2>
+                <span class="column-count">0</span>
+            </div>
+            <div class="task-list">
+                <div class="empty-state">No hay tareas aún</div>
+            </div>
+        </div>
+    </div>
+
+    <button class="create-task-btn">Crear Tarea</button>
+</main>
+
+<!-- Modal para crear tarea -->
+<div id="createTask" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>Crear Nueva Tarea</h2>
+        <form id="createTaskForm" autocomplete="off">
+            <div class="form-group">
+                <label for="taskTitle">Título:</label>
+                <input id="taskTitle" name="taskTitle" type="text" placeholder="Ingresa el título de la tarea"
+                    required />
+            </div>
+
+            <div class="form-group">
+                <label for="taskDesc">Descripción:</label>
+                <textarea id="taskDesc" name="taskDesc" placeholder="Descripción opcional"></textarea>
+            </div>
+
+            <div class="name-row">
+                <div class="form-group">
+                    <label for="taskDate">Fecha:</label>
+                    <input id="taskDate" name="taskDate" type="date" />
+                </div>
+                <div class="form-group">
+                    <label for="taskTime">Hora:</label>
+                    <input id="taskTime" name="taskTime" type="time" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="taskStatus">Estado:</label>
+                <select id="taskStatus" name="taskStatus" required>
+                    <option value="pending">Por Hacer</option>
+                    <option value="progress">Haciendo</option>
+                    <option value="completed">Hecho</option>
+                </select>
+            </div>
+
+            <div class="buttons-modal">
+                <button type="button" id="cancelTaskBtn">Cancelar</button>
+                <button type="submit">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
