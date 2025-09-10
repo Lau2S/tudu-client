@@ -222,6 +222,7 @@ function initSignin() {
   const modal = document.getElementById('recoveryPassword');
   const cancelBtn = document.getElementById('cancelTaskBtn');
   const closeBtn = modal?.querySelector('.close-modal');
+  const sendEmailBtn = document.getElementById('sendEmail');
 
   if (!form || !emailInput || !passInput || !submitBtn) {
     console.warn("initSignin: Missing required form elements");
@@ -338,6 +339,10 @@ function initSignin() {
       validateForm();
     }
   });
+
+  
+
+
 
   // ===========================
   // LÓGICA PARA RECUPERACIÓN DE CONTRASEÑA
