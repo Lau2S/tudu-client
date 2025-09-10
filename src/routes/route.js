@@ -74,10 +74,6 @@ function handleRoute() {
  */
 function initHome() {}
 
-//  * Initialize the "home" view.
-//  * Attaches a submit handler to the register form to navigate to the board.
-   
-
 function initSignup() {
   const form = document.getElementById("sign-up-form");
   if (!form) return;
@@ -197,6 +193,10 @@ function initSignin() {
   const emailInput = document.getElementById("sign-in-email");
   const passInput = document.getElementById("sign-in-password");
   const submitBtn = form?.querySelector('button[type="submit"]');
+  const forgotLink = document.querySelector('.forgot-password-link');
+  const modal = document.getElementById('recoveryPassword');
+  const cancelBtn = document.getElementById('cancelTaskBtn');
+  const closeBtn = modal?.querySelector('.close-modal');
 
   if (!form || !emailInput || !passInput || !submitBtn) {
     console.warn(
@@ -212,6 +212,14 @@ function initSignin() {
     location.hash = "#/dashboard";
     return;
   }
+
+  if (forgotLink && modal) {
+    forgotLink.addEventListener('click', () => {
+      modal.style.display = 'block';
+    });
+  }
+  closeBtn?.addEventListener('click', () => modal.style.display = 'none');
+  cancelBtn?.addEventListener('click', () => modal.style.display = 'none');
 
   submitBtn.disabled = true;
 
@@ -327,7 +335,6 @@ async function initDashboard() {
   initUserDropdown();
   initCreateTaskModal();
   initTaskActions();
-
 }
 
 // ===========================
@@ -492,8 +499,7 @@ function createTaskCard(task) {
     </div>
     <div class="task-title">${escapeHtml(title)}</div>
     <div class="task-description">${escapeHtml(detail)}</div>
-    <div class="task-datetime">${datetime}</div>
-
+    ${dateHtml}
   `;
 
   // Hacer las tarjetas arrastrables (opcional)
