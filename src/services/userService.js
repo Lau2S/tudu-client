@@ -180,3 +180,26 @@ export function getCurrentUser() {
     return null;
   }
 }
+
+/**
+ * Forgot password - Send recovery email
+ * Sends a password recovery email to the user
+ *
+ * @async
+ * @function forgotPassword
+ * @param {string} email - The user's email address
+ * @returns {Promise<Object>} The response from the server
+ * @throws {Error} If the request fails
+ *
+ * @example
+ * try {
+ *   const response = await forgotPassword('user@example.com');
+ *   console.log(response.message); // "Revisa tu correo para continuar"
+ * } catch (err) {
+ *   console.error("Password recovery failed:", err.message);
+ * }
+ */
+export async function forgotPassword(email) {
+  return http.post('/users/auth/forgot-password', { email });
+}
+
