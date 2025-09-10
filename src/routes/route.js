@@ -55,7 +55,6 @@ async function loadView(name, token = null) {
   if (name === "sign-in") initSignin();
   if (name === "dashboard") initDashboard();
   if (name === "recovery-password") initResetPassword(token);
-  if (name === "reset-password") initResetPassword(token);
 }
 
 /**
