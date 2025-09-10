@@ -40,7 +40,7 @@ async function loadView(name) {
   if (name === "sign-up") initSignup();
   if (name === "sign-in") initSignin();
   if (name === "dashboard") initDashboard();
-  if (name === "recovery-password") initRecoveryPassword();
+  if (name === "reset-password") initResetPassword();
 }
 
 /**
@@ -59,7 +59,7 @@ export function initRouter() {
 function handleRoute() {
   const path =
     (location.hash.startsWith("#/") ? location.hash.slice(2) : "") || "home";
-  const known = ["home", "board", "sign-in", "sign-up", "dashboard", "recovery-password"];
+  const known = ["home", "board", "sign-in", "sign-up", "dashboard", "reset-password"];
   const route = known.includes(path) ? path : "home";
 
   loadView(route).catch((err) => {
@@ -811,4 +811,4 @@ function debugDashboard() {
   console.log("- Form:", document.getElementById("createTaskForm"));
 }
 
-function initRecoveryPassword() {}
+function initResetPassword() {}
