@@ -52,6 +52,7 @@ async function loadView(name) {
   if (name === "sign-up") initSignup();
   if (name === "sign-in") initSignin();
   if (name === "dashboard") initDashboard();
+  if (name === "recovery-password") initRecoveryPassword();
 }
 
 /**
@@ -72,7 +73,7 @@ export function initRouter() {
 function handleRoute() {
   const path =
     (location.hash.startsWith("#/") ? location.hash.slice(2) : "") || "home";
-  const known = ["home", "board", "sign-in", "sign-up", "dashboard"];
+  const known = ["home", "board", "sign-in", "sign-up", "dashboard", "recovery-password"];
   const route = known.includes(path) ? path : "home";
 
   loadView(route).catch((err) => {
@@ -218,11 +219,17 @@ function initSignin() {
   const emailInput = document.getElementById("sign-in-email");
   const passInput = document.getElementById("sign-in-password");
   const submitBtn = form?.querySelector('button[type="submit"]');
+  
+  // Elementos del modal de forgot password
   const forgotLink = document.querySelector('.forgot-password-link');
   const modal = document.getElementById('recoveryPassword');
+  const modalForm = document.getElementById('createTaskForm');
+  const modalEmailInput = document.getElementById('forgotLink');
   const cancelBtn = document.getElementById('cancelTaskBtn');
   const closeBtn = modal?.querySelector('.close-modal');
   const sendEmailBtn = document.getElementById('sendEmail');
+
+  
 
   if (!form || !emailInput || !passInput || !submitBtn) {
     console.warn("initSignin: Missing required form elements");
@@ -339,10 +346,6 @@ function initSignin() {
       validateForm();
     }
   });
-
-  
-
-
 
   // ===========================
   // LÓGICA PARA RECUPERACIÓN DE CONTRASEÑA
@@ -900,3 +903,5 @@ function debugDashboard() {
   console.log("- Modal:", document.getElementById("createTask"));
   console.log("- Form:", document.getElementById("createTaskForm"));
 }
+
+function initRecoveryPassword() {}
