@@ -1,29 +1,31 @@
+/**
+ * @fileoverview User service module for authentication and user management.
+ * Provides functions for user registration, login, profile management, and password recovery.
+ * @author Tudu Development Team
+ * @version 1.0.0
+ */
+
 import { http } from '../api/http.js';
 
 /**
- * Register a new user in the system.
- *
- * Sends a POST request to the backend API (`/users`)
- * with the provided user registration data matching the frontend form.
- *
+ * Registers a new user in the system.
+ * Maps frontend form fields to backend expected format.
  * @async
- * @function registerUser
- * @param {Object} params - User registration data.
- * @param {string} params.nombre - The first name of the user.
- * @param {string} params.apellido - The last name of the user.
- * @param {string} params.email - The email of the user.
- * @param {string} params.password - The password of the user.
- * @param {string} params.age - The age of the user.
- * @returns {Promise<Object>} The created user object returned by the API.
- * @throws {Error} If the API responds with an error status or message.
- *
+ * @param {Object} params - User registration data
+ * @param {string} params.nombre - User's first name
+ * @param {string} params.apellido - User's last name
+ * @param {string} params.email - User's email address
+ * @param {string} params.password - User's password
+ * @param {string} params.age - User's age
+ * @returns {Promise<Object>} The created user object from the API
+ * @throws {Error} If the API responds with an error
  * @example
  * try {
  *   const user = await registerUser({ 
  *     nombre: "Juan", 
  *     apellido: "Pérez", 
  *     email: "juan@example.com", 
- *     password: "MiPassword123", 
+ *     password: "SecurePass123!", 
  *     age: "25" 
  *   });
  *   console.log("User created:", user);
@@ -32,42 +34,53 @@ import { http } from '../api/http.js';
  * }
  */
 export async function registerUser({ nombre, apellido, email, password, age }) {
-  // Mapear los campos del frontend a lo que espera el backend
   return http.post('/users', {
-    username: email,      // Usar email como username para mantener compatibilidad
-    email: email,         // Email del usuario
-    password: password,   // Contraseña del usuario
-    firstName: nombre,    // Nombre del usuario
-    lastName: apellido,   // Apellido del usuario
-    age: parseInt(age)    // Edad convertida a número
+    username: email,
+    email: email,
+    password: password,
+    firstName: nombre,
+    lastName: apellido,
+    age: parseInt(age)
   });
 }
 
 /**
- * Login user with credentials.
- * ACTUALIZADA para usar la ruta correcta del backend
- *
+ * Authenticates a user with email and password credentials.
  * @async
- * @function loginUser
- * @param {Object} params - Login credentials.
- * @param {string} params.email - The user email.
- * @param {string} params.password - The password.
- * @returns {Promise<Object>} The login response with user data and token.
- * @throws {Error} If login fails.
+ * @param {Object} params - Login credentials
+ * @param {string} params.email - User's email address
+ * @param {string} params.password - User's password
+ * @returns {Promise<Object>} Login response containing user data and JWT token
+ * @throws {Error} If authentication fails
+ * @example
+ * try {
+ *   const response = await loginUser({ 
+ *     email: "user@example.com", 
+ *     password: "password123" 
+ *   });
+ *   localStorage.setItem('token', response.token);
+ * } catch (err) {
+ *   console.error("Login failed:", err.message);
+ * }
  */
 export async function loginUser({ email, password }) {
   return http.post('/users/auth/login', { email, password });
 }
 
 /**
- * Get user profile information.
- * ACTUALIZADA para incluir autenticación
- *
+ * Retrieves user profile information by user ID.
+ * Requires authentication token in localStorage.
  * @async
- * @function getUserProfile
- * @param {string} userId - The user ID.
- * @returns {Promise<Object>} The user profile data.
- * @throws {Error} If the request fails.
+ * @param {string} userId - The user ID to fetch profile for
+ * @returns {Promise<Object>} User profile data
+ * @throws {Error} If the request fails or user is unauthorized
+ * @example
+ * try {
+ *   const profile = await getUserProfile('user123');
+ *   console.log("User profile:", profile);
+ * } catch (err) {
+ *   console.error("Failed to get profile:", err.message);
+ * }
  */
 export async function getUserProfile(userId) {
   const token = localStorage.getItem('token');
@@ -79,15 +92,23 @@ export async function getUserProfile(userId) {
 }
 
 /**
- * Update user profile.
- * ACTUALIZADA para incluir autenticación
- *
+ * Updates user profile information.
+ * Requires authentication token in localStorage.
  * @async
- * @function updateUserProfile
- * @param {string} userId - The user ID.
- * @param {Object} updates - The profile updates.
- * @returns {Promise<Object>} The updated user data.
- * @throws {Error} If the update fails.
+ * @param {string} userId - The user ID to update
+ * @param {Object} updates - Profile updates object
+ * @returns {Promise<Object>} Updated user data
+ * @throws {Error} If the update fails or user is unauthorized
+ * @example
+ * try {
+ *   const updated = await updateUserProfile('user123', { 
+ *     firstName: 'NewName',
+ *     age: 26 
+ *   });
+ *   console.log("Profile updated:", updated);
+ * } catch (err) {
+ *   console.error("Update failed:", err.message);
+ * }
  */
 export async function updateUserProfile(userId, updates) {
   const token = localStorage.getItem('token');
@@ -99,14 +120,19 @@ export async function updateUserProfile(userId, updates) {
 }
 
 /**
- * Delete user account.
- * ACTUALIZADA para incluir autenticación
- *
+ * Deletes a user account permanently.
+ * Requires authentication token in sessionStorage.
  * @async
- * @function deleteUser
- * @param {string} userId - The user ID.
+ * @param {string} userId - The user ID to delete
  * @returns {Promise<void>}
- * @throws {Error} If the deletion fails.
+ * @throws {Error} If the deletion fails or user is unauthorized
+ * @example
+ * try {
+ *   await deleteUser('user123');
+ *   console.log("Account deleted successfully");
+ * } catch (err) {
+ *   console.error("Deletion failed:", err.message);
+ * }
  */
 export async function deleteUser(userId) {
   const token = sessionStorage.getItem('token');
@@ -118,8 +144,17 @@ export async function deleteUser(userId) {
 }
 
 /**
- * Logout user - NUEVA FUNCIÓN
- * Llama al endpoint de logout del backend y limpia el localStorage
+ * Logs out the current user by calling backend logout endpoint and clearing local storage.
+ * Handles both successful logout and error cases gracefully.
+ * @async
+ * @returns {Promise<void>}
+ * @example
+ * try {
+ *   await logoutUser();
+ *   console.log("Logged out successfully");
+ * } catch (err) {
+ *   console.error("Logout error:", err.message);
+ * }
  */
 export async function logoutUser() {
   const token = sessionStorage.getItem('token');
@@ -131,21 +166,26 @@ export async function logoutUser() {
         }
       });
     } catch (error) {
-      console.warn('Error durante logout en el servidor:', error);
+      console.warn('Error during logout on server:', error);
     }
   }
-  // Limpiar localStorage
+  
   sessionStorage.removeItem('token');
   sessionStorage.removeItem('userId');
   sessionStorage.removeItem('userEmail');
-
-  // Redirigir al sign-in
   location.hash = '#/sign-in';
 }
 
 /**
- * Check if user is authenticated
- * Verifica si el token existe y no ha expirado
+ * Checks if the current user is authenticated by validating the JWT token.
+ * Verifies token existence and expiration status.
+ * @returns {boolean} True if user is authenticated with valid token, false otherwise
+ * @example
+ * if (isAuthenticated()) {
+ *   console.log("User is logged in");
+ * } else {
+ *   console.log("User needs to log in");
+ * }
  */
 export function isAuthenticated() {
   const token = localStorage.getItem('token');
@@ -156,14 +196,20 @@ export function isAuthenticated() {
     const now = Date.now() / 1000;
     return tokenPayload.exp > now;
   } catch (error) {
-    console.error('Error verificando token:', error);
+    console.error('Error verifying token:', error);
     sessionStorage.removeItem('token');
     return false;
   }
 }
 
 /**
- * Get current user info from token
+ * Extracts current user information from the stored JWT token.
+ * @returns {Object|null} User object with userId and email, or null if no valid token
+ * @example
+ * const user = getCurrentUser();
+ * if (user) {
+ *   console.log(`Welcome ${user.email}`);
+ * }
  */
 export function getCurrentUser() {
   const token = localStorage.getItem('token');
@@ -176,21 +222,17 @@ export function getCurrentUser() {
       email: tokenPayload.email
     };
   } catch (error) {
-    console.error('Error decodificando token:', error);
+    console.error('Error decoding token:', error);
     return null;
   }
 }
 
 /**
- * Forgot password - Send recovery email
- * Sends a password recovery email to the user
- *
+ * Initiates password recovery process by sending recovery email to user.
  * @async
- * @function forgotPassword
- * @param {string} email - The user's email address
- * @returns {Promise<Object>} The response from the server
- * @throws {Error} If the request fails
- *
+ * @param {string} email - User's email address for password recovery
+ * @returns {Promise<Object>} Server response confirming email sent
+ * @throws {Error} If the request fails or email is invalid
  * @example
  * try {
  *   const response = await forgotPassword('user@example.com');

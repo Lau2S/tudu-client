@@ -1,25 +1,38 @@
 /**
- * Base URL for API requests.
- * 
- * Loaded from Vite environment variables (`VITE_API_URL`).
+ * @fileoverview HTTP client module for API communication.
+ * Provides a wrapper around the Fetch API with automatic JSON handling and error management.
+ * @author Tudu Development Team
+ * @version 1.0.0
+ */
+
+/**
+ * Base URL for all API requests.
+ * Loaded from Vite environment variables (VITE_API_URL).
+ * @type {string}
  */
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 /**
- * Generic HTTP request helper using Fetch API.
- *
- * Automatically stringifies the request body (if provided),
- * sets default headers (`Content-Type: application/json`),
- * and parses JSON responses.
- *
+ * Generic HTTP request function using the Fetch API.
+ * Automatically handles JSON serialization/deserialization and error responses.
  * @async
- * @param {string} path - API path (relative to BASE_URL).
- * @param {Object} [options={}] - Request options.
- * @param {string} [options.method='GET'] - HTTP method (GET, POST, PUT, DELETE).
- * @param {Object} [options.headers={}] - Additional request headers.
- * @param {Object} [options.body] - Request body (will be JSON.stringified).
- * @returns {Promise<any>} The parsed response payload (JSON if available).
- * @throws {Error} If the response is not OK (status >= 400), throws with message.
+ * @param {string} path - API endpoint path (relative to BASE_URL)
+ * @param {Object} [options={}] - Request configuration options
+ * @param {string} [options.method='GET'] - HTTP method
+ * @param {Object} [options.headers={}] - Additional HTTP headers
+ * @param {Object} [options.body] - Request payload (will be JSON stringified)
+ * @returns {Promise<any>} Parsed JSON response or null for non-JSON responses
+ * @throws {Error} Throws error with server message for HTTP error responses
+ * @example
+ * try {
+ *   const data = await request('/users', { 
+ *     method: 'POST', 
+ *     body: { name: 'John' } 
+ *   });
+ *   console.log(data);
+ * } catch (err) {
+ *   console.error('Request failed:', err.message);
+ * }
  */
 async function request(path, { method = 'GET', headers = {}, body } = {}) {
   const res = await fetch(`${BASE_URL}${path}`, {
@@ -43,37 +56,56 @@ async function request(path, { method = 'GET', headers = {}, body } = {}) {
 }
 
 /**
- * Convenience HTTP client.
- * Provides shorthand methods for common HTTP verbs.
+ * HTTP client object providing convenient methods for common HTTP operations.
+ * All methods use the generic request function with appropriate HTTP verbs.
+ * @namespace
  */
 export const http = {
   /**
-   * Perform a GET request.
-   * @param {string} path - API path.
-   * @param {Object} [opts] - Optional fetch options.
+   * Performs a GET request to fetch data.
+   * @param {string} path - API endpoint path
+   * @param {Object} [opts] - Additional fetch options (headers, etc.)
+   * @returns {Promise<any>} Response data
+   * @example
+   * const users = await http.get('/users');
+   * const user = await http.get('/users/123', { 
+   *   headers: { Authorization: 'Bearer token' } 
+   * });
    */
   get: (path, opts) => request(path, { method: 'GET', ...opts }),
 
   /**
-   * Perform a POST request.
-   * @param {string} path - API path.
-   * @param {Object} body - Request body.
-   * @param {Object} [opts] - Optional fetch options.
+   * Performs a POST request to create or submit data.
+   * @param {string} path - API endpoint path
+   * @param {Object} body - Request payload
+   * @param {Object} [opts] - Additional fetch options
+   * @returns {Promise<any>} Response data
+   * @example
+   * const newUser = await http.post('/users', { 
+   *   name: 'John', 
+   *   email: 'john@example.com' 
+   * });
    */
   post: (path, body, opts) => request(path, { method: 'POST', body, ...opts }),
 
   /**
-   * Perform a PUT request.
-   * @param {string} path - API path.
-   * @param {Object} body - Request body.
-   * @param {Object} [opts] - Optional fetch options.
+   * Performs a PUT request to update existing data.
+   * @param {string} path - API endpoint path
+   * @param {Object} body - Request payload with updates
+   * @param {Object} [opts] - Additional fetch options
+   * @returns {Promise<any>} Response data
+   * @example
+   * const updated = await http.put('/users/123', { name: 'Jane' });
    */
   put: (path, body, opts) => request(path, { method: 'PUT', body, ...opts }),
 
   /**
-   * Perform a DELETE request.
-   * @param {string} path - API path.
-   * @param {Object} [opts] - Optional fetch options.
+   * Performs a DELETE request to remove data.
+   * @param {string} path - API endpoint path
+   * @param {Object} [opts] - Additional fetch options
+   * @returns {Promise<any>} Response data
+   * @example
+   * await http.del('/users/123');
    */
   del: (path, opts) => request(path, { method: 'DELETE', ...opts }),
 };

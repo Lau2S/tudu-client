@@ -1,8 +1,25 @@
+/**
+ * @fileoverview Task service module for task management operations.
+ * Provides functions for CRUD operations on tasks with authentication.
+ * @author Tudu Development Team
+ * @version 1.0.0
+ */
+
 import { http } from "../api/http.js";
 
 /**
- * Get all tasks for the authenticated user
- * @returns {Promise<Object[]>} Array of tasks
+ * Retrieves all tasks for the authenticated user.
+ * Maps backend task format to frontend format.
+ * @async
+ * @returns {Promise<Object[]>} Array of user tasks
+ * @throws {Error} If the request fails or user is not authenticated
+ * @example
+ * try {
+ *   const tasks = await getTasks();
+ *   console.log(`Found ${tasks.length} tasks`);
+ * } catch (err) {
+ *   console.error("Failed to load tasks:", err.message);
+ * }
  */
 export async function getTasks() {
   const token = localStorage.getItem("token");
@@ -20,14 +37,27 @@ export async function getTasks() {
 }
 
 /**
- * Create a new task
- * @param {Object} taskData - Task data
+ * Creates a new task for the authenticated user.
+ * @async
+ * @param {Object} taskData - Task creation data
  * @param {string} taskData.title - Task title
- * @param {string} taskData.description - Task description
- * @param {string} taskData.status - Task status (pending, progress, completed)
- * @param {string} [taskData.dueDate] - Due date (optional)
- * @param {string} [taskData.priority] - Task priority (optional)
- * @returns {Promise<Object>} Created task
+ * @param {string} taskData.detail - Task description/details
+ * @param {string} [taskData.dueDate] - Due date in ISO format (optional)
+ * @param {string} [taskData.status='pending'] - Task status
+ * @returns {Promise<Object>} Created task object
+ * @throws {Error} If the creation fails or user is not authenticated
+ * @example
+ * try {
+ *   const task = await createTask({
+ *     title: "Complete project",
+ *     detail: "Finish the final implementation",
+ *     dueDate: "2024-12-31",
+ *     status: "pending"
+ *   });
+ *   console.log("Task created:", task);
+ * } catch (err) {
+ *   console.error("Failed to create task:", err.message);
+ * }
  */
 export async function createTask({ title, detail, dueDate, status }) {
   const token = localStorage.getItem("token");
@@ -45,10 +75,22 @@ export async function createTask({ title, detail, dueDate, status }) {
 }
 
 /**
- * Update an existing task
- * @param {string} taskId - Task ID
- * @param {Object} updates - Task updates
- * @returns {Promise<Object>} Updated task
+ * Updates an existing task with new information.
+ * @async
+ * @param {string} taskId - The ID of the task to update
+ * @param {Object} updates - Object containing fields to update
+ * @returns {Promise<Object>} Updated task object
+ * @throws {Error} If the update fails or user is not authenticated
+ * @example
+ * try {
+ *   const updated = await updateTask('task123', { 
+ *     title: 'Updated title',
+ *     status: 'completed' 
+ *   });
+ *   console.log("Task updated:", updated);
+ * } catch (err) {
+ *   console.error("Failed to update task:", err.message);
+ * }
  */
 export async function updateTask(taskId, updates) {
   const token = localStorage.getItem("token");
@@ -60,9 +102,18 @@ export async function updateTask(taskId, updates) {
 }
 
 /**
- * Delete a task
- * @param {string} taskId - Task ID
+ * Deletes a task permanently.
+ * @async
+ * @param {string} taskId - The ID of the task to delete
  * @returns {Promise<void>}
+ * @throws {Error} If the deletion fails or user is not authenticated
+ * @example
+ * try {
+ *   await deleteTask('task123');
+ *   console.log("Task deleted successfully");
+ * } catch (err) {
+ *   console.error("Failed to delete task:", err.message);
+ * }
  */
 export async function deleteTask(taskId) {
   const token = localStorage.getItem("token");
@@ -74,18 +125,35 @@ export async function deleteTask(taskId) {
 }
 
 /**
- * Update task status (for drag & drop or status change)
- * @param {string} taskId - Task ID
- * @param {string} newStatus - New status (pending, progress, completed)
- * @returns {Promise<Object>} Updated task
+ * Updates task status for drag & drop operations or status changes.
+ * @async
+ * @param {string} taskId - The ID of the task to update
+ * @param {string} newStatus - New status ('pending', 'progress', 'completed')
+ * @returns {Promise<Object>} Updated task object
+ * @throws {Error} If the status update fails
+ * @example
+ * try {
+ *   const updated = await updateTaskStatus('task123', 'completed');
+ *   console.log("Task status updated:", updated);
+ * } catch (err) {
+ *   console.error("Failed to update status:", err.message);
+ * }
  */
 export async function updateTaskStatus(taskId, newStatus) {
   return updateTask(taskId, { status: newStatus });
 }
 
 /**
- * Get task statistics for dashboard
- * @returns {Promise<Object>} Task statistics
+ * Retrieves task statistics for dashboard display.
+ * @async
+ * @returns {Promise<Object>} Object containing task counts by status
+ * @example
+ * try {
+ *   const stats = await getTaskStats();
+ *   console.log(`${stats.total} tasks: ${stats.completed} completed`);
+ * } catch (err) {
+ *   console.error("Failed to get stats:", err.message);
+ * }
  */
 export async function getTaskStats() {
   try {
@@ -103,6 +171,16 @@ export async function getTaskStats() {
   }
 }
 
+/* ===================================
+ * UTILITY FUNCTIONS
+ * =================================== */
+
+/**
+ * Maps frontend status values to backend expected values.
+ * @private
+ * @param {string} status - Frontend status value
+ * @returns {string} Backend status value
+ */
 function mapStatus(status) {
   switch (status) {
     case "pending":
@@ -116,6 +194,12 @@ function mapStatus(status) {
   }
 }
 
+/**
+ * Maps backend state values to frontend status values.
+ * @private
+ * @param {string} state - Backend state value
+ * @returns {string} Frontend status value
+ */
 function mapState(state) {
   switch (state) {
     case "Por hacer":

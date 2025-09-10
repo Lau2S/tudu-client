@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Client-side router for the Tudu application.
+ * Handles hash-based navigation and view initialization with authentication.
+ * @author Tudu Development Team
+ * @version 1.0.0
+ */
+
 import {
   registerUser,
   loginUser,
@@ -14,20 +21,25 @@ import {
   updateTaskStatus,
 } from "../services/taskService.js";
 
+/** @type {HTMLElement} Main application container */
 const app = document.getElementById("app");
 
 /**
- * Build a safe URL for fetching view fragments inside Vite (dev and build).
- * @param {string} name - The name of the view (without extension).
- * @returns {URL} The resolved URL for the view HTML file.
+ * Builds a safe URL for fetching view fragments in Vite environment.
+ * @param {string} name - The view name without extension
+ * @returns {URL} The resolved URL for the view HTML file
+ * @example
+ * const url = viewURL('home'); // Returns URL for home.html
  */
 const viewURL = (name) => new URL(`../views/${name}.html`, import.meta.url);
 
 /**
- * Load an HTML fragment by view name and initialize its corresponding logic.
+ * Loads an HTML fragment by view name and initializes its corresponding logic.
  * @async
- * @param {string} name - The view name to load (e.g., "home", "board").
- * @throws {Error} If the view cannot be fetched.
+ * @param {string} name - The view name to load (e.g., "home", "sign-in")
+ * @throws {Error} If the view cannot be fetched
+ * @example
+ * await loadView('dashboard'); // Loads and initializes dashboard view
  */
 async function loadView(name) {
   const res = await fetch(viewURL(name));
@@ -43,17 +55,19 @@ async function loadView(name) {
 }
 
 /**
- * Initialize the hash-based router.
- * Attaches an event listener for URL changes and triggers the first render.
+ * Initializes the hash-based router system.
+ * Sets up navigation event listeners and triggers initial route handling.
+ * @public
  */
 export function initRouter() {
   window.addEventListener("hashchange", handleRoute);
-  handleRoute(); // first render
+  handleRoute();
 }
 
 /**
- * Handle the current route based on the location hash.
- * Fallback to 'home' if the route is unknown.
+ * Handles the current route based on the location hash.
+ * Provides fallback to 'home' for unknown routes and error handling.
+ * @private
  */
 function handleRoute() {
   const path =
@@ -67,14 +81,22 @@ function handleRoute() {
   });
 }
 
-/* ---- View-specific logic ---- */
+/* ===================================
+ * VIEW INITIALIZATION FUNCTIONS
+ * =================================== */
 
 /**
- * Initialize the "home" view.
- * Attaches a submit handler to the register form to navigate to the board.
+ * Initializes the home view.
+ * Currently a placeholder for future home page functionality.
+ * @private
  */
 function initHome() {}
 
+/**
+ * Initializes the sign-up view with form validation and submission handling.
+ * Implements real-time validation for email, password strength, confirmation, and age.
+ * @private
+ */
 function initSignup() {
   const form = document.getElementById("sign-up-form");
   if (!form) return;
@@ -94,7 +116,6 @@ function initSignup() {
   if (!emailInput || !passInput || !confirmInput || !ageInput || !submitBtn)
     return;
 
-  // Crear contenedor para error de confirmación si no existe
   let confirmError = document.createElement("div");
   confirmError.style.color = "red";
   confirmError.style.fontSize = "0.85rem";
@@ -107,6 +128,11 @@ function initSignup() {
   const passwordRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
 
+  /**
+   * Validates the sign-up form inputs in real-time.
+   * Checks email format, password strength, confirmation match, and age requirements.
+   * @private
+   */
   function validateForm() {
     const email = (emailInput.value || "").trim();
     const password = (passInput.value || "").trim();
@@ -127,8 +153,6 @@ function initSignup() {
     if (password !== confirm) {
       valid = false;
       errors.push("confirm");
-
-      // Mostrar mensaje debajo del confirm password
       confirmError.textContent = "❌ Las contraseñas no coinciden";
       confirmError.style.display = "block";
     } else {
@@ -148,8 +172,6 @@ function initSignup() {
     } else {
       submitBtn.removeAttribute("title");
     }
-
-    console.log("validateForm ->", { valid, errors });
   }
 
   [emailInput, passInput, confirmInput, ageInput].forEach((input) => {
@@ -186,8 +208,10 @@ function initSignup() {
 }
 
 /**
- * Initialize the "sign-in" view.
- * ACTUALIZADA para conectar correctamente con el backend
+ * Initializes the sign-in view with authentication and password recovery.
+ * Handles user login, form validation, and forgot password functionality.
+ * Redirects authenticated users to dashboard automatically.
+ * @private
  */
 function initSignin() {
   const form = document.getElementById("sign-in-form");
@@ -200,9 +224,7 @@ function initSignin() {
   const closeBtn = modal?.querySelector('.close-modal');
 
   if (!form || !emailInput || !passInput || !submitBtn) {
-    console.warn(
-      "initSignin: faltan elementos del formulario, revisa los ids."
-    );
+    console.warn("initSignin: Missing required form elements");
     return;
   }
 
@@ -224,6 +246,11 @@ function initSignin() {
 
   submitBtn.disabled = true;
 
+  /**
+   * Validates the sign-in form inputs.
+   * Checks email format and password presence.
+   * @private
+   */
   function validateForm() {
     const email = emailInput.value.trim();
     const password = passInput.value.trim();
@@ -239,7 +266,11 @@ function initSignin() {
   passInput.addEventListener("input", validateForm);
   validateForm();
 
-  // Función para mostrar ventana emergente tipo toast
+  /**
+   * Displays an error toast notification.
+   * @param {string} message - The error message to display
+   * @private
+   */
   function showToast(message) {
     let toast = document.createElement("div");
     toast.textContent = message;
@@ -352,7 +383,11 @@ function initSignin() {
     });
   }
 
-  // Función para mostrar toast de éxito (verde)
+  /**
+   * Displays a success toast notification.
+   * @param {string} message - The success message to display
+   * @private
+   */
   function showSuccessToast(message) {
     let toast = document.createElement("div");
     toast.textContent = message;
@@ -370,12 +405,10 @@ function initSignin() {
 
     document.body.appendChild(toast);
 
-    // Mostrar con animación
     requestAnimationFrame(() => {
       toast.style.opacity = "1";
     });
 
-    // Desaparece después de 4 segundos
     setTimeout(() => {
       toast.style.opacity = "0";
       toast.addEventListener("transitionend", () => toast.remove());
@@ -384,8 +417,10 @@ function initSignin() {
 }
 
 /**
- * Initialize the "dashboard" view.
- * ACTUALIZADA para proteger con autenticación
+ * Initializes the dashboard view with authentication protection.
+ * Loads user tasks, sets up user interface, and initializes task management features.
+ * Redirects unauthenticated users to sign-in page.
+ * @private
  */
 /**
  * Mostrar notificación toast
@@ -412,18 +447,22 @@ async function initDashboard() {
   initTaskActions();
 }
 
-// ===========================
-// CARGAR TAREAS DESDE BACKEND
-// ===========================
+/* ===================================
+ * TASK MANAGEMENT FUNCTIONS
+ * =================================== */
+
+/**
+ * Loads tasks from the backend API and renders them in the appropriate columns.
+ * Handles task status normalization and error cases.
+ * @async
+ * @private
+ */
 async function loadTasksFromBackend() {
   try {
-    console.log("Iniciando carga de tareas...");
-    const tasks = await getTasks(); // Función que obtiene tareas del backend
-    console.log("Tareas recibidas:", tasks);
+    const tasks = await getTasks();
 
-    // Verificar que tasks sea un array
     if (!Array.isArray(tasks)) {
-      console.error("Las tareas no son un array:", tasks);
+      console.error("Invalid tasks format:", tasks);
       showToast("Error: formato de datos incorrecto", "error");
       return;
     }
@@ -434,19 +473,22 @@ async function loadTasksFromBackend() {
       completed: document.querySelector(".completed-column .task-list"),
     };
 
-    // Verificar que las columnas existan
     Object.entries(columns).forEach(([key, col]) => {
       if (!col) {
-        console.error(`Columna no encontrada: .${key}-column .task-list`);
+        console.error(`Column not found: .${key}-column .task-list`);
       }
     });
 
-    // Limpiar columnas existentes
     Object.values(columns).forEach((col) => {
       if (col) col.innerHTML = "";
     });
 
-    // Normalizar estados de tareas (en caso de inconsistencias)
+    /**
+     * Normalizes task status values to standard format.
+     * @param {string} status - The task status to normalize
+     * @returns {string} Normalized status: 'pending', 'progress', or 'completed'
+     * @private
+     */
     const normalizeStatus = (status) => {
       const statusMap = {
         pending: "pending",
@@ -461,7 +503,6 @@ async function loadTasksFromBackend() {
       return statusMap[status?.toLowerCase()] || "pending";
     };
 
-    // Agrupar tareas por estado normalizado
     const tasksByStatus = {
       pending: [],
       progress: [],
@@ -475,9 +516,6 @@ async function loadTasksFromBackend() {
       }
     });
 
-    console.log("Tareas agrupadas:", tasksByStatus);
-
-    // Renderizar tareas en cada columna
     Object.entries(tasksByStatus).forEach(([status, taskList]) => {
       const col = columns[status];
       if (!col) {
@@ -516,9 +554,22 @@ async function loadTasksFromBackend() {
   }
 }
 
-// ===========================
-// ACTUALIZAR CONTADORES
-// ===========================
+/**
+ * Updates the task count display for each column in the dashboard.
+ * Finds the counter elements for each status column and updates their text content
+ * with the number of tasks in each respective status.
+ * @param {Object} tasksByStatus - Object containing arrays of tasks grouped by status
+ * @param {Array} tasksByStatus.pending - Array of pending tasks
+ * @param {Array} tasksByStatus.progress - Array of tasks in progress
+ * @param {Array} tasksByStatus.completed - Array of completed tasks
+ * @private
+ * @example
+ * updateColumnCounts({
+ *   pending: [task1, task2],
+ *   progress: [task3],
+ *   completed: [task4, task5, task6]
+ * });
+ */
 function updateColumnCounts(tasksByStatus) {
   const counters = {
     pending: document.querySelector(".pending-column .column-count"),
@@ -533,9 +584,28 @@ function updateColumnCounts(tasksByStatus) {
   });
 }
 
-// ===========================
-// CREAR TARJETA DE TAREA
-// ===========================
+/**
+ * Creates a DOM element representing a task card with all necessary interactive elements.
+ * Builds a complete task card with title, description, due date, and action buttons.
+ * Handles date formatting and provides fallback values for missing task properties.
+ * @param {Object} task - The task object containing task information
+ * @param {string} [task.id] - Unique identifier for the task (MongoDB _id or custom id)
+ * @param {string} [task._id] - MongoDB document identifier
+ * @param {string} [task.title] - Task title/name
+ * @param {string} [task.detail] - Task description/details
+ * @param {string} [task.description] - Alternative field for task description
+ * @param {string|Date} [task.dueDate] - Due date for the task (ISO string or Date object)
+ * @returns {HTMLElement|null} The created task card element, or null if task is invalid
+ * @private
+ * @example
+ * const task = {
+ *   _id: "64a123...",
+ *   title: "Complete project",
+ *   detail: "Finish the final implementation",
+ *   dueDate: "2024-01-15T10:30:00Z"
+ * };
+ * const cardElement = createTaskCard(task);
+ */
 function createTaskCard(task) {
   if (!task) {
     console.error("Task es null o undefined");
@@ -546,7 +616,6 @@ function createTaskCard(task) {
   card.className = "task-card";
   card.dataset.taskId = task.id || task._id || "";
 
-  // Validar datos de la tarea
   const title = task.title || "Sin título";
   const detail = task.detail || task.description || "";
 
@@ -577,24 +646,37 @@ function createTaskCard(task) {
     ${dateHtml}
   `;
 
-  // Hacer las tarjetas arrastrables (opcional)
   card.draggable = true;
 
   return card;
 }
 
-// ===========================
-// ESCAPAR HTML PARA SEGURIDAD
-// ===========================
+/**
+ * Escapes HTML special characters in text to prevent XSS attacks.
+ * Uses the browser's built-in text content processing to safely escape
+ * HTML entities like <, >, &, quotes, etc.
+ * @param {string} text - The text to escape
+ * @returns {string} HTML-safe escaped text
+ * @private
+ * @example
+ * const safeText = escapeHtml('<script>alert("xss")</script>');
+ * // Returns: '&lt;script&gt;alert("xss")&lt;/script&gt;'
+ */
 function escapeHtml(text) {
   const div = document.createElement("div");
   div.textContent = text;
   return div.innerHTML;
 }
 
-// ===========================
-// MENU USUARIO Y LOGOUT
-// ===========================
+/* ===================================
+ * USER INTERFACE FUNCTIONS
+ * =================================== */
+
+/**
+ * Initializes the user dropdown menu functionality.
+ * Handles dropdown toggle and click-outside-to-close behavior.
+ * @private
+ */
 function initUserDropdown() {
   const userProfile = document.querySelector(".user-profile");
   if (!userProfile) return;
@@ -627,9 +709,11 @@ function initUserDropdown() {
   }
 }
 
-// ===========================
-// MODAL CREAR TAREA
-// ===========================
+/**
+ * Initializes the create task modal functionality.
+ * Handles modal open/close events and form submission for task creation.
+ * @private
+ */
 function initCreateTaskModal() {
   const openBtn = document.querySelector(".create-task-btn");
   const modal = document.getElementById("createTask");
@@ -638,7 +722,7 @@ function initCreateTaskModal() {
   const cancelBtn = document.getElementById("cancelTaskBtn");
 
   if (!openBtn || !modal || !form) {
-    console.warn("Elementos del modal no encontrados");
+    console.warn("Create task modal elements not found");
     return;
   }
 
@@ -699,9 +783,11 @@ function initCreateTaskModal() {
   });
 }
 
-// ===========================
-// EDITAR / ELIMINAR TAREAS
-// ===========================
+/**
+ * Initializes task action event handlers for edit and delete operations.
+ * Uses event delegation to handle dynamically created task elements.
+ * @private
+ */
 function initTaskActions() {
   document.addEventListener("click", async (e) => {
     const card = e.target.closest(".task-card");
@@ -709,7 +795,7 @@ function initTaskActions() {
 
     const taskId = card.dataset.taskId;
     if (!taskId) {
-      console.error("ID de tarea no encontrado");
+      console.error("Task ID not found");
       return;
     }
 
@@ -754,9 +840,16 @@ function initTaskActions() {
   });
 }
 
-// ===========================
-// NOTIFICACIONES TOAST
-// ===========================
+/* ===================================
+ * UTILITY FUNCTIONS
+ * =================================== */
+
+/**
+ * Displays a toast notification with customizable styling.
+ * @param {string} msg - The message to display
+ * @param {string} [type='info'] - The toast type: 'info', 'success', or 'error'
+ * @private
+ */
 function showToast(msg, type = "info") {
   const toast = document.createElement("div");
   toast.textContent = msg;
