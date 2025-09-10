@@ -735,6 +735,7 @@ a:hover {
     text-decoration: none;
     opacity: 0.7;
     font-weight: 100;
+    cursor: pointer;
 }
 
 .recovery-password {
