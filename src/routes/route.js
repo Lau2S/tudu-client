@@ -314,6 +314,80 @@ function initSignin() {
       validateForm();
     }
   });
+
+  // ===========================
+  // LÓGICA PARA RECUPERACIÓN DE CONTRASEÑA
+  // ===========================
+  const recoveryForm = modal?.querySelector('form');
+  const emailRecoveryInput = document.getElementById('forgotLink');
+  
+  if (recoveryForm && emailRecoveryInput) {
+    recoveryForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = emailRecoveryInput.value.trim();
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      
+      if (!emailRegex.test(email)) {
+        showToast("⚠️ Por favor ingresa un email válido");
+        return;
+      }
+      
+      const submitRecoveryBtn = recoveryForm.querySelector('button[type="submit"]');
+      const originalRecoveryText = submitRecoveryBtn.textContent;
+      
+      try {
+        submitRecoveryBtn.disabled = true;
+        submitRecoveryBtn.textContent = "Enviando...";
+        
+        await forgotPassword(email);
+        
+        // Mostrar mensaje de éxito
+        showSuccessToast("✅ Revisa tu correo para continuar");
+        
+        // Cerrar modal y limpiar formulario
+        modal.style.display = 'none';
+        emailRecoveryInput.value = '';
+        
+      } catch (err) {
+        showToast("❌ " + (err?.message || "Error al enviar correo de recuperación"));
+        console.error("Forgot password error:", err);
+      } finally {
+        submitRecoveryBtn.disabled = false;
+        submitRecoveryBtn.textContent = originalRecoveryText;
+      }
+    });
+  }
+
+  // Función para mostrar toast de éxito (verde)
+  function showSuccessToast(message) {
+    let toast = document.createElement("div");
+    toast.textContent = message;
+    toast.style.position = "fixed";
+    toast.style.top = "20px";
+    toast.style.right = "20px";
+    toast.style.backgroundColor = "#28a745";
+    toast.style.color = "#fff";
+    toast.style.padding = "12px 20px";
+    toast.style.borderRadius = "8px";
+    toast.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)";
+    toast.style.zIndex = "1000";
+    toast.style.opacity = "0";
+    toast.style.transition = "opacity 0.3s ease";
+
+    document.body.appendChild(toast);
+
+    // Mostrar con animación
+    requestAnimationFrame(() => {
+      toast.style.opacity = "1";
+    });
+
+    // Desaparece después de 4 segundos
+    setTimeout(() => {
+      toast.style.opacity = "0";
+      toast.addEventListener("transitionend", () => toast.remove());
+    }, 4000);
+  }
 }
 
 /**
