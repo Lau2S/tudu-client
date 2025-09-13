@@ -10,6 +10,7 @@ import { initHome } from '../views/js/homeView.js';
 import { initResetPassword } from '../views/js/resetPasswordView.js';
 import { initSignin } from '../views/js/signInView.js';
 import { initSignup } from '../views/js/signUpView.js';
+import { initSitemap } from '../views/js/sitemapView.js';
 
 /** @type {HTMLElement} Main application container */
 const app = document.getElementById("app");
@@ -55,6 +56,9 @@ async function loadView(name, token = null) {
     case "recovery-password":
       initResetPassword(token);
       break;
+    case "sitemap":
+      initSitemap();
+      break;
     default:
       console.warn(`No initializer found for view: ${name}`);
   }
@@ -92,7 +96,7 @@ function handleRoute() {
     }
   }
 
-  const known = ["home", "board", "sign-in", "sign-up", "dashboard"];
+  const known = ["home", "board", "sign-in", "sign-up", "dashboard", "sitemap"];
   const route = known.includes(path) ? path : "home";
 
   loadView(route).catch((err) => {

@@ -177,11 +177,13 @@ input::placeholder {
     color: var(--text-color);
     opacity: 0.7;
 }
+
 .password-requirements h3 {
     text-align: left;
     margin: 0.5rem 0;
     font-size: 1rem;
 }
+
 .age-requirements {
     text-align: left;
     font-size: 0.85rem;
@@ -190,6 +192,7 @@ input::placeholder {
     color: var(--text-color);
     opacity: 0.7;
 }
+
 .age-requirements h3 {
     text-align: left;
     margin: 0.5rem 0;
@@ -209,7 +212,7 @@ h6 {
     color: var(--text-color);
 }
 
-button:disabled{
+button:disabled {
     padding: 10px 15px;
     border: none;
     border-radius: 6px;
@@ -218,10 +221,12 @@ button:disabled{
     cursor: not-allowed;
     transition: background-color 0.3s;
 }
+
 button:disabled:hover {
     background-color: gray;
     border: none;
 }
+
 button {
     background-color: var(--text-color);
     color: var(--background-color);
@@ -519,44 +524,44 @@ a:hover {
 }
 
 .modal {
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center  ;
-  justify-content: center;
-  overflow: auto;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(1px);
-  padding: 2rem;
-  box-sizing: border-box;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(1px);
+    padding: 2rem;
+    box-sizing: border-box;
 }
 
 .modal-content {
-  background: var(--background-color);
-  margin: 5% auto;
-  padding: 24px;
-  border-radius: var(--border-radius);
-  width: 90%;
-  max-width: 480px;
-  position: relative;
-  box-shadow: var(--shadow);
+    background: var(--background-color);
+    margin: 5% auto;
+    padding: 24px;
+    border-radius: var(--border-radius);
+    width: 90%;
+    max-width: 480px;
+    position: relative;
+    box-shadow: var(--shadow);
 }
 
 .form-group textarea {
-  resize: vertical;
-  min-height: 80px;
-  font-family: inherit;
-  margin-bottom: 20px;
-  background-color: #f8f9fa;
-  border-radius: var(--border-radius);
-  border: 1px solid #e9ecef;
-  box-sizing: border-box;
-  padding-top: 12px;
-  padding-left: 14px;
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+    margin-bottom: 20px;
+    background-color: #f8f9fa;
+    border-radius: var(--border-radius);
+    border: 1px solid #e9ecef;
+    box-sizing: border-box;
+    padding-top: 12px;
+    padding-left: 14px;
 
 }
 
@@ -570,65 +575,65 @@ a:hover {
 }
 
 .form-group select {
-  padding: 12px 16px;
-  border-radius: var(--border-radius);
-  border: 1px solid #e9ecef;
-  font-size: 13px;
-  background-color: #f8f9fa;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  width: 100%;
-  box-sizing: border-box;
-  margin-bottom: 40px;
+    padding: 12px 16px;
+    border-radius: var(--border-radius);
+    border: 1px solid #e9ecef;
+    font-size: 13px;
+    background-color: #f8f9fa;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 40px;
 }
 
 .form-group select:focus {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
 }
 
 
 .close-modal {
-  position: absolute;
-  right: 16px;
-  top: 16px;
-  font-size: 24px;
-  cursor: pointer;
-  color: #6b7280;
-  transition: color 0.2s ease;
+    position: absolute;
+    right: 16px;
+    top: 16px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #6b7280;
+    transition: color 0.2s ease;
 }
 
 .buttons-modal {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
 }
 
 .buttons-modal button {
-  color: var(--background-color);
-  border: none;
-  padding: 0.7rem 2rem;
-  cursor: pointer;
-  font-size: medium;
-  border-radius: 10px;
-  transition: background-color 0.3s ease;
+    color: var(--background-color);
+    border: none;
+    padding: 0.7rem 2rem;
+    cursor: pointer;
+    font-size: medium;
+    border-radius: 10px;
+    transition: background-color 0.3s ease;
 }
 
 
 .buttons-modal button:first-child {
-  background-color: var(--text-color) ;
-  flex: 0 0 100px; 
+    background-color: var(--text-color);
+    flex: 0 0 100px;
 }
 
 
 .buttons-modal button:last-child {
-  background-color: var(--primary-color);
-  flex: 1; 
-} 
+    background-color: var(--primary-color);
+    flex: 1;
+}
 
 .buttons-modal button:hover {
-  background-color: var(--button-hover-color);
-  color: var(--text-color);
-  border: 1px solid var(--primary-color);
+    background-color: var(--button-hover-color);
+    color: var(--text-color);
+    border: 1px solid var(--primary-color);
 }
 
 /* Contenedor del perfil */
@@ -747,14 +752,174 @@ a:hover {
 
 
 .modal-password-content {
-  background: var(--background-color);
-  margin: 5% auto;
-  padding: 2rem;;
-  border-radius: var(--border-radius);
-  max-width: 400px;
-  position: relative;
-  box-shadow: var(--shadow);
-  box-sizing: border-box;
+    background: var(--background-color);
+    margin: 5% auto;
+    padding: 2rem;
+    ;
+    border-radius: var(--border-radius);
+    max-width: 400px;
+    position: relative;
+    box-shadow: var(--shadow);
+    box-sizing: border-box;
+}
+
+/* Estilos mejorados para el mapa del sitio */
+.sitemap-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.sitemap-title {
+    font-size: 2.5rem;
+    color: var(--text-color);
+    text-align: center;
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.sitemap-title:after {
+    content: "";
+    display: block;
+    width: 80px;
+    height: 4px;
+    background-color: var(--primary-color);
+    margin: 15px auto 0;
+    border-radius: 2px;
+}
+
+.sitemap-section {
+    margin-bottom: 60px;
+}
+
+.sitemap-section h2 {
+    font-size: 1.8rem;
+    color: var(--text-color);
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 10px;
+    margin-bottom: 30px;
+}
+
+.sitemap-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+.sitemap-card {
+    background-color: var(--background-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 25px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(128, 128, 128, 0.1);
+}
+
+.sitemap-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.sitemap-card-icon {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+}
+
+.sitemap-card h3 {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+    color: var(--text-color);
+    text-align: left;
+}
+
+.sitemap-card p {
+    flex-grow: 1;
+    color: var(--text-color);
+    opacity: 0.7;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.sitemap-link {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: var(--primary-color);
+    color: white !important;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+    text-align: center;
+}
+
+.sitemap-link:hover {
+    background-color: var(--primary-hover);
+    text-decoration: none;
+}
+
+/* Árbol de sitio */
+.sitemap-tree {
+    padding: 20px;
+    background-color: rgba(1, 171, 83, 0.05);
+    border-radius: 12px;
+}
+
+.sitemap-tree ul {
+    list-style-type: none;
+    padding-left: 20px;
+}
+
+.sitemap-tree>ul {
+    padding-left: 0;
+}
+
+.sitemap-tree li {
+    position: relative;
+    padding: 10px 0 0 20px;
+}
+
+.sitemap-tree li:before {
+    content: "";
+    position: absolute;
+    top: 20px;
+    left: 0;
+    width: 15px;
+    height: 1px;
+    background-color: var(--primary-color);
+}
+
+.sitemap-tree li:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 100%;
+    background-color: var(--primary-color);
+}
+
+.sitemap-tree li:last-child:after {
+    height: 20px;
+}
+
+.sitemap-tree ul>li:first-child:after {
+    top: 20px;
+    height: calc(100% - 20px);
+}
+
+.sitemap-tree span {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 4px;
+    background-color: var(--background-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    font-weight: 500;
+    color: var(--text-color);
+    border: 1px solid rgba(128, 128, 128, 0.15);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -765,5 +930,38 @@ a:hover {
         --border-color: #f5f5f5;
         --secondary-color: #015028;
     }
-}
 
+    /* Correcciones específicas para el mapa del sitio en modo oscuro */
+    .sitemap-card {
+        background-color: #1e1e1e;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        border: 1px solid #333;
+    }
+
+    .sitemap-card p {
+        color: #e0e0e0;
+    }
+
+    .sitemap-card h3 {
+        color: #f5f5f5;
+    }
+
+    .sitemap-tree {
+        background-color: rgba(1, 171, 83, 0.15);
+    }
+
+    .sitemap-tree span {
+        background-color: #1e1e1e;
+        color: #f5f5f5;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        border: 1px solid #444;
+    }
+
+    .sitemap-section h2 {
+        color: #f5f5f5;
+    }
+
+    .sitemap-title {
+        color: #f5f5f5;
+    }
+}
