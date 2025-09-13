@@ -4,7 +4,7 @@
  * @version 1.0.0
  */
 
-import { forgotPassword, isAuthenticated, loginUser } from '../../services/userService.js';
+import { forgotPassword, getUserProfile, isAuthenticated, loginUser } from '../../services/userService.js';
 import { showSuccessToast, showToast } from '../../utils/notifications.js';
 
 /**
@@ -87,6 +87,20 @@ export function initSignin() {
         const tokenPayload = JSON.parse(atob(data.token.split(".")[1]));
         localStorage.setItem("userId", tokenPayload.userId);
         localStorage.setItem("userEmail", tokenPayload.email);
+
+        // Obtener datos completos del usuario para mostrar el nombre
+        try {
+          const userProfile = await getUserProfile(tokenPayload.userId);
+          const fullName = `${userProfile.firstName} ${userProfile.lastName}`;
+          localStorage.setItem("userName", fullName);
+          localStorage.setItem("userFirstName", userProfile.firstName);
+        } catch (profileError) {
+          console.warn("No se pudo obtener el perfil completo:", profileError);
+          // Fallback: usar la parte antes del @ del email como nombre
+          const emailName = tokenPayload.email.split("@")[0];
+          localStorage.setItem("userName", emailName);
+        }
+
         console.log("Usuario logueado:", {
           userId: tokenPayload.userId,
           email: tokenPayload.email,

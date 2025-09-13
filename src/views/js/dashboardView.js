@@ -23,8 +23,19 @@ export async function initDashboard() {
   const userAvatar = document.querySelector(".user-avatar");
 
   if (userNameEl && userAvatar && currentUser?.email) {
-    userNameEl.textContent = currentUser.email.split("@")[0];
-    userAvatar.textContent = currentUser.email[0].toUpperCase();
+    // Intentar usar el nombre completo almacenado, fallback al email
+    const storedUserName = localStorage.getItem("userName");
+    const storedFirstName = localStorage.getItem("userFirstName");
+
+    if (storedUserName) {
+      userNameEl.textContent = storedUserName;
+      // Usar la primera letra del primer nombre para el avatar
+      userAvatar.textContent = storedFirstName ? storedFirstName[0].toUpperCase() : storedUserName[0].toUpperCase();
+    } else {
+      // Fallback: usar email como antes
+      userNameEl.textContent = currentUser.email.split("@")[0];
+      userAvatar.textContent = currentUser.email[0].toUpperCase();
+    }
   }
 
   await loadTasksFromBackend();
