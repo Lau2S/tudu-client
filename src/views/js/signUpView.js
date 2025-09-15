@@ -91,6 +91,9 @@ export function initSignup() {
     input.addEventListener("input", validateForm);
   });
 
+  // Agregar validación específica para edad
+  ageInput.addEventListener("input", validateAge);
+
   validateForm();
 
   form.addEventListener("submit", async (e) => {
@@ -247,9 +250,9 @@ export function initSignup() {
     const button = document.getElementById("sign-up-button");
     const passwordInput = document.getElementById("sign-up-password");
     const emailInput = document.getElementById("sign-up-email");
-    const firstNameInput = document.getElementById("sign-up-first-name");
-    const lastNameInput = document.getElementById("sign-up-last-name");
-    const ageInput = document.getElementById("sign-up-age");
+    const firstNameInput = document.getElementById("name");
+    const lastNameInput = document.getElementById("last-name");
+    const ageInput = document.getElementById("age");
 
     if (!button || !passwordInput || !emailInput || !firstNameInput || !lastNameInput || !ageInput) {
       return;
@@ -273,6 +276,27 @@ export function initSignup() {
 
     // Enable/disable button
     button.disabled = !(passwordValid && fieldsValid);
+  }
+
+  /**
+   * Validates age requirement in real-time
+   * @private
+   */
+  function validateAge() {
+    const ageInput = document.getElementById("age");
+    const ageError = document.getElementById("age-error");
+
+    if (!ageInput || !ageError) return;
+
+    const age = parseInt(ageInput.value);
+
+    if (ageInput.value && age < 13) {
+      ageInput.style.borderColor = '#ff4757';
+      ageError.style.display = 'block';
+    } else {
+      ageInput.style.borderColor = '';
+      ageError.style.display = 'none';
+    }
   }
 
   initPasswordValidation();
