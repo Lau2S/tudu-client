@@ -1,6 +1,6 @@
 <header class="header">
     <div class="logo">
-        <img src="/logo_tudu.png" alt="Tudu Logo" />
+        <a href="#/home"><img src="/logo_tudu.png" alt="Tudu Logo" /></a>
     </div>
 
     <!-- PERFIL DE USUARIO -->
@@ -101,6 +101,51 @@
             <div class="buttons-modal">
                 <button type="button" id="cancelTaskBtn">Cancelar</button>
                 <button type="submit">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para editar tarea -->
+<div id="editTask" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>Editar Tarea</h2>
+        <form id="editTaskForm" autocomplete="off">
+            <div class="form-group">
+                <label for="editTaskTitle">Título:</label>
+                <input id="editTaskTitle" name="taskTitle" type="text" placeholder="Ingresa el título de la tarea"
+                    required />
+            </div>
+
+            <div class="form-group">
+                <label for="editTaskDesc">Descripción:</label>
+                <textarea id="editTaskDesc" name="taskDesc" placeholder="Descripción opcional"></textarea>
+            </div>
+
+            <div class="name-row">
+                <div class="form-group">
+                    <label for="editTaskDate">Fecha:</label>
+                    <input id="editTaskDate" name="taskDate" type="date" />
+                </div>
+                <div class="form-group">
+                    <label for="editTaskTime">Hora:</label>
+                    <input id="editTaskTime" name="taskTime" type="time" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="editTaskStatus">Estado:</label>
+                <select id="editTaskStatus" name="taskStatus" required>
+                    <option value="pending">Por Hacer</option>
+                    <option value="progress">Haciendo</option>
+                    <option value="completed">Hecho</option>
+                </select>
+            </div>
+
+            <div class="buttons-modal">
+                <button type="button" id="cancelEditTaskBtn">Cancelar</button>
+                <button type="submit">Guardar Cambios</button>
             </div>
         </form>
     </div>

@@ -85,7 +85,7 @@ export async function createTask({ title, detail, dueDate, status }) {
  * try {
  *   const updated = await updateTask('task123', { 
  *     title: 'Updated title',
- *     status: 'completed' 
+ *     state: 'Hecho' 
  *   });
  *   console.log("Task updated:", updated);
  * } catch (err) {
@@ -94,7 +94,16 @@ export async function createTask({ title, detail, dueDate, status }) {
  */
 export async function updateTask(taskId, updates) {
   const token = localStorage.getItem("token");
-  return http.put(`/tasks/${taskId}`, updates, {
+
+  // Ensure we're sending the correct structure to the backend
+  const payload = {
+    title: updates.title,
+    detail: updates.detail,
+    date: updates.date,
+    state: updates.state
+  };
+
+  return http.put(`/tasks/${taskId}`, payload, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

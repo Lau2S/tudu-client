@@ -1,14 +1,14 @@
 <main class="main">
   <div class="logo">
-    <img src="/logo_tudu.png" alt="Logo de Tudu" class="login-logo">
+    <a href="#/home"><img src="/logo_tudu.png" alt="Logo de Tudu" class="login-logo"></a>
   </div>
-  
-  <form  class="registration-card" id = "sign-up-form" action="/register">
+
+  <form class="registration-card" id="sign-up-form" action="/register">
     <div>
       <h2 class="form-title">Registrate</h2>
       <p class="form-subtitle">Ingresa tu información para crear una nueva cuenta</p>
     </div>
-    
+
     <div class="name-row">
       <div class="form-group">
         <label for="name">Nombre</label>
@@ -20,39 +20,54 @@
       </div>
     </div>
 
-      <label for="sign-up-email">Email</label>
-      <input type="email" id="sign-up-email" name="email" placeholder="Ingrese su email" required>
-      
-      <label for="age">Edad</label>
-      <input type="number" id="age" placeholder="Ingrese su edad" required>
-      <div class="age-requirements">
-        <h3>La edad debe ser:</h3>
-        <ul>
-          <li>Mayor o igual a 13 años</li>
-        </ul>
-      </div>
+    <label for="sign-up-email">Email</label>
+    <input type="email" id="sign-up-email" name="email" placeholder="Ingrese su email" required>
 
-      <label for="sign-up-password">Contraseña</label>
-      <input type="password" id="sign-up-password" name="password" placeholder="Ingrese su contraseña" required>
+    <label for="age">Edad</label>
+    <input type="number" id="age" placeholder="Ingrese su edad" required>
 
-      <label for="confirm-password">Confirmar Contraseña</label>
-      <input type="password" id="confirm-password" name="password" placeholder="Ingrese su contraseña" required>
-      <div class ="password-requirements">
-        <h3>La contraseña debe tener:</h3>
-        <ul>
-          <li id="length" class="invalid">Al menos 8 caracteres</li>
-          <li id="uppercase" class="invalid">Al menos una mayúscula</li>
-          <li id="lowercase" class="invalid">Al menos una minúscula</li>
-          <li id="number" class="invalid">Al menos un número</li>
-          <li id="special" class="invalid">Al menos un caracter especial: @,$,!,%,?,&,#</li>
-        </ul>
-      </div>
-      <button type="submit" id="sign-up-button" disabled>Continuar</button>
-      <div class="sign-in-footer">
-        <p>¿Ya tienes una cuenta? <a href="#/sign-in">Inicia sesión</a></p>
-      </div>
+    <div id="age-error"
+      style="color: red; font-size: 0.85rem; margin-top: -0.5rem; margin-bottom: 0.8rem; display: none;">
+      ❌ Debes tener al menos 13 años para registrarte
+    </div>
+
+    <label for="sign-up-password">Contraseña</label>
+    <input type="password" id="sign-up-password" name="password" placeholder="Ingrese su contraseña" required>
+
+    <label for="confirm-password">Confirmar Contraseña</label>
+    <input type="password" id="confirm-password" name="password" placeholder="Ingrese su contraseña" required>
+    <div class="password-requirements">
+      <h3>La contraseña debe cumplir:</h3>
+      <ul id="passwordRequirements">
+        <li id="req-length" class="requirement">
+          <span class="requirement-icon"></span>
+          <span class="requirement-text">Al menos 8 caracteres</span>
+        </li>
+        <li id="req-uppercase" class="requirement">
+          <span class="requirement-icon"></span>
+          <span class="requirement-text">Una letra mayúscula</span>
+        </li>
+        <li id="req-lowercase" class="requirement">
+          <span class="requirement-icon"></span>
+          <span class="requirement-text">Una letra minúscula</span>
+        </li>
+        <li id="req-number" class="requirement">
+          <span class="requirement-icon"></span>
+          <span class="requirement-text">Un número</span>
+        </li>
+        <li id="req-special" class="requirement">
+          <span class="requirement-icon"></span>
+          <span class="requirement-text">Un carácter especial (!@#$%^&*)</span>
+        </li>
+      </ul>
+    </div>
+    <button type="submit" id="sign-up-button" disabled>Continuar</button>
+    <div class="sign-in-footer">
+      <p>¿Ya tienes una cuenta? <a href="#/sign-in">Inicia sesión</a></p>
+    </div>
   </form>
 </main>
 <footer class="footer">
-    <p>©2025 Tudu. Todos los derechos reservados &nbsp;&nbsp;&nbsp; Mapa del Sitio</p>
-  </footer>
+  <p>©2025 Tudu. Todos los derechos reservados &nbsp;&nbsp;&nbsp; <a href="#/sitemap">Mapa del Sitio</a>
+    &nbsp;&nbsp;&nbsp; <a href="#/home">Volver al Inicio</a></p>
+</footer>

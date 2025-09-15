@@ -34,7 +34,7 @@ import { http } from '../api/http.js';
  * }
  */
 export async function registerUser({ nombre, apellido, email, password, age }) {
-  return http.post('/users', {
+  const response = await http.post('/users', {
     username: email,
     email: email,
     password: password,
@@ -42,6 +42,13 @@ export async function registerUser({ nombre, apellido, email, password, age }) {
     lastName: apellido,
     age: parseInt(age)
   });
+
+  // Almacenar el nombre después del registro exitoso
+  const fullName = `${nombre} ${apellido}`;
+  localStorage.setItem("userName", fullName);
+  localStorage.setItem("userFirstName", nombre);
+
+  return response;
 }
 
 /**
@@ -84,7 +91,7 @@ export async function loginUser({ email, password }) {
  */
 export async function getUserProfile(userId) {
   const token = localStorage.getItem('token');
-  return http.get(`/users/${userId}`, {
+  return http.get(`/users/me`, {
     headers: {
       'Authorization': `Bearer ${token}`
     }
@@ -112,7 +119,7 @@ export async function getUserProfile(userId) {
  */
 export async function updateUserProfile(userId, updates) {
   const token = localStorage.getItem('token');
-  return http.put(`/users/${userId}`, updates, {
+  return http.put(`/users/me/${userId}`, updates, {
     headers: {
       'Authorization': `Bearer ${token}`
     }
@@ -135,7 +142,7 @@ export async function updateUserProfile(userId, updates) {
  * }
  */
 export async function deleteUser(userId) {
-  const token = sessionStorage.getItem('token');
+  const token = localStorage.getItem('token');
   return http.del(`/users/${userId}`, {
     headers: {
       'Authorization': `Bearer ${token}`
@@ -169,10 +176,16 @@ export async function logoutUser() {
       console.warn('Error during logout on server:', error);
     }
   }
-  
+
+  // Limpiar también los datos del nombre del usuario
   sessionStorage.removeItem('token');
   sessionStorage.removeItem('userId');
   sessionStorage.removeItem('userEmail');
+  localStorage.removeItem('token');
+  localStorage.removeItem('userId');
+  localStorage.removeItem('userEmail');
+  localStorage.removeItem('userName');
+  localStorage.removeItem('userFirstName');
   location.hash = '#/sign-in';
 }
 
