@@ -55,6 +55,7 @@ async function loadView(name, token = null) {
   if (name === "sign-in") initSignin();
   if (name === "dashboard") initDashboard();
   if (name === "recovery-password") initResetPassword(token);
+  if (name === "user-profile") initUserProfile();
 }
 
 /**
@@ -99,7 +100,7 @@ function handleRoute() {
     }
   }
 
-  const known = ["home", "board", "sign-in", "sign-up", "dashboard"];
+  const known = ["home", "board", "sign-in", "sign-up", "dashboard", "user-profile"];
   const route = known.includes(path) ? path : "home";
 
   loadView(route).catch((err) => {
@@ -1080,3 +1081,5 @@ function initResetPassword(token) {
 
   form.addEventListener('submit', handleSubmit);
 }
+
+function initUserProfile() {}

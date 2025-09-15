@@ -1,0 +1,78 @@
+<header class="header">
+    <!-- PERFIL DE USUARIO -->
+    <div class="user-profile" >
+        <div class="profile-avatar">N</div>
+            <div class="info-usuario">
+            <h2>Nombre Usuario</h2>
+            <p>correoejemplo@gmail.com</p>
+        </div>
+        <span class="dropdown-arrow">▼</span>
+
+        <!-- Menú desplegable -->
+        <div class="user-dropdown">
+            <ul>
+                <li id="taskOption">Tus tareas</li>
+                <li id="logoutOption">Cerrar sesión</li>
+            </ul>
+        </div>
+    </div>
+
+    <nav class="nav-buttons">
+            <a href="#/dashboard" class="btn btn-primary">Volver</a>
+    </nav>
+</header>
+<main>
+    <form class="profile-card" >
+        <div>
+            <div>
+                <h2 class="form-title">Edita tu perfil</h2>
+                <p class="form-subtitle">Actuliaza tu informacion personal y cambia tu contraseña</p>
+            </div>
+
+            <div class="name-row">
+                <div class="form-group">
+                    <label for="name">Nombre</label>
+                    <input type="text">
+                </div>
+                <div class="form-group">
+                    <label for="last-name">Apellido</label>
+                    <input type="text" id="last-name">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="age">Edad</label>
+                <input type="number" id="age"> 
+            </div>
+
+
+        </div>
+
+        <div>
+            <div class="profile-header">
+                <h2 class="form-title">Cambia tu contraseña</h2>
+                <p class="form-subtitle">Deja en blanco para mantener tu contraseña actual</p>
+            </div>
+
+            <div class="form-group">
+                <label >Contraseña actual</label>
+                <input type="text">
+            </div>
+            <div class="form-group">
+                <label >Nueva contraseña</label>
+                <input type="text">
+            </div>
+            <div class="form-group">
+                <label >Confirmar nueva contraseña</label>
+                <input type="text">
+            </div>
+
+
+        </div>
+
+        <button>Guardar Cambios</button>
+
+
+    </form>
+
+</main>
