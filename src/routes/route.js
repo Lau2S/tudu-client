@@ -12,6 +12,7 @@ import { initSignin } from '../views/js/signInView.js';
 import { initSignup } from '../views/js/signUpView.js';
 import { initSitemap } from '../views/js/sitemapView.js';
 import { initUserProfile } from '../views/js/userProfileView.js';
+import { initAboutUs } from '../views/js/aboutUsView.js';
 
 /** @type {HTMLElement} Main application container */
 const app = document.getElementById("app");
@@ -60,6 +61,9 @@ async function loadView(name, token = null) {
     case "sitemap":
       initSitemap();
       break;
+    case "about-us":
+      initAboutUs();
+      break;
     case "user-profile":
       await initUserProfile();
       break;
@@ -100,7 +104,7 @@ function handleRoute() {
     }
   }
 
-  const known = ["home", "board", "sign-in", "sign-up", "dashboard", "sitemap", "user-profile"];
+  const known = ["home", "board", "sign-in", "sign-up", "dashboard", "sitemap", "user-profile", "about-us"];
   const route = known.includes(path) ? path : "home";
 
   loadView(route).catch((err) => {

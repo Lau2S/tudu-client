@@ -359,6 +359,16 @@ a:hover {
     font-size: 0.875rem;
 }
 
+.footer a {
+    color: white;
+    text-decoration: none;
+    font-weight: 200;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
 .user-profile {
     display: flex;
     align-items: center;
