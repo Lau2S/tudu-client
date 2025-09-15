@@ -54,10 +54,16 @@ async function loadUserData() {
     const nameInput = document.getElementById('name');
     const lastNameInput = document.getElementById('last-name');
     const ageInput = document.getElementById('age');
+    const createAt = document.getElementById('createAt');
 
     if (nameInput) nameInput.value = userProfile.firstName || '';
     if (lastNameInput) lastNameInput.value = userProfile.lastName || '';
     if (ageInput) ageInput.value = userProfile.age || '';
+    if (createAt) {
+      const createdDate = new Date(userProfile.createdAt);
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      createAt.textContent = `Miembro desde el ${createdDate.toLocaleDateString('es-ES', options)}`;
+    }
 
   } catch (error) {
     console.error("Error loading user data:", error);

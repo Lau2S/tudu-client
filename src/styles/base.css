@@ -1234,17 +1234,13 @@ a:hover {
     text-align: center;
 }
 
-.profile-header {
+.profile-header{
     border-top: 2px solid #e9ebec;
+    margin-bottom: 1.3rem;
+    color: var(--text-color);
+    opacity: 0.42;
 }
 
-.profile-header h2 {
-    font-size: 1.3rem;
-    color: var(--text-color);
-    margin-top: 1.3rem;
-    margin-bottom: 0rem;
-    text-align: center;
-}
 
 .info-usuario h2 {
     color: var(--text-color);

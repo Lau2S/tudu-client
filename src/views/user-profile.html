@@ -18,7 +18,7 @@
   </div>
 
   <nav class="nav-buttons">
-    <a href="#/dashboard" class="btn btn-primary">Volver</a>
+    <button class="btn btn-primary">Eliminar cuenta</button>
   </nav>
 </header>
 <main>
@@ -26,7 +26,7 @@
     <div>
       <div>
         <h2 class="form-title">Edita tu perfil</h2>
-        <p class="form-subtitle">Actuliaza tu informacion personal y cambia tu contraseña</p>
+        <p class="form-subtitle">Actuliaza tu informacion personal y guarda los cambios</p>
       </div>
 
       <div class="name-row">
@@ -52,55 +52,8 @@
 
     </div>
 
-    <div>
-      <div class="profile-header">
-        <h2 class="form-title">Cambia tu contraseña</h2>
-        <p class="form-subtitle">Deja en blanco para mantener tu contraseña actual</p>
-      </div>
-
-      <div class="form-group">
-        <label>Contraseña actual</label>
-        <input type="password" id="current-password">
-      </div>
-      <div class="form-group">
-        <label>Nueva contraseña</label>
-        <input type="password" id="new-password">
-      </div>
-      <div class="form-group">
-        <label>Confirmar nueva contraseña</label>
-        <input type="password" id="confirm-new-password">
-      </div>
-
-      <div id="password-match-error"
-        style="color: red; font-size: 0.85rem; margin-top: -0.5rem; margin-bottom: 0.8rem; display: none;">
-        ❌ Las contraseñas no coinciden
-      </div>
-
-      <div class="password-requirements">
-        <h3>La contraseña debe cumplir:</h3>
-        <ul id="passwordRequirements">
-          <li id="req-length" class="requirement">
-            <span class="requirement-icon"></span>
-            <span class="requirement-text">Al menos 8 caracteres</span>
-          </li>
-          <li id="req-uppercase" class="requirement">
-            <span class="requirement-icon"></span>
-            <span class="requirement-text">Una letra mayúscula</span>
-          </li>
-          <li id="req-lowercase" class="requirement">
-            <span class="requirement-icon"></span>
-            <span class="requirement-text">Una letra minúscula</span>
-          </li>
-          <li id="req-number" class="requirement">
-            <span class="requirement-icon"></span>
-            <span class="requirement-text">Un número</span>
-          </li>
-          <li id="req-special" class="requirement">
-            <span class="requirement-icon"></span>
-            <span class="requirement-text">Un carácter especial (!@#$%^&*)</span>
-          </li>
-        </ul>
-      </div>
+    <div class="profile-header">
+      <p id="createAt"></p>
 
     </div>
 
