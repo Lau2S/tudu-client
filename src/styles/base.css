@@ -176,12 +176,77 @@ input::placeholder {
     margin-bottom: 1rem;
     color: var(--text-color);
     opacity: 0.7;
+    display: none;
+    transition: all 0.3s ease;
+}
+
+.password-requirements.show {
+    display: block;
 }
 
 .password-requirements h3 {
     text-align: left;
     margin: 0.5rem 0;
     font-size: 1rem;
+}
+
+.password-requirements ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.requirement {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    transition: all 0.3s ease;
+}
+
+.requirement-icon {
+    font-size: 14px;
+    font-weight: bold;
+    width: 16px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.requirement.invalid .requirement-icon::before {
+    content: "✗";
+    color: #dc3545;
+}
+
+.requirement.valid .requirement-icon::before {
+    content: "✓";
+    color: #28a745;
+}
+
+.requirement.invalid {
+    color: #dc3545;
+}
+
+.requirement.valid {
+    color: #28a745;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+    .requirement.invalid {
+        color: #ff6b6b;
+    }
+
+    .requirement.invalid .requirement-icon::before {
+        color: #ff6b6b;
+    }
+
+    .requirement.valid {
+        color: #51cf66;
+    }
+
+    .requirement.valid .requirement-icon::before {
+        color: #51cf66;
+    }
 }
 
 .age-requirements {
@@ -486,14 +551,89 @@ a:hover {
     position: absolute;
     top: 16px;
     right: 10px;
-    display: flex;
-    gap: 7px;
-    opacity: 0;
+    opacity: 1;
     transition: opacity 0.2s ease;
 }
 
 .task-card:hover .task-options {
     opacity: 1;
+}
+
+.task-menu-btn {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+    font-weight: bold;
+    color: var(--text-color);
+    opacity: 0.5;
+    min-width: 32px;
+    min-height: 32px;
+}
+
+.task-menu-btn:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    opacity: 1;
+}
+
+.task-menu-btn:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.task-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: var(--background-color);
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 120px;
+    z-index: 100;
+    overflow: hidden;
+    display: none;
+    transform: translateY(-10px);
+    opacity: 0;
+    transition: all 0.2s ease;
+}
+
+.task-dropdown-menu.active {
+    display: block;
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.task-dropdown-item {
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+.task-dropdown-item:hover {
+    background-color: #f1f3f4;
+}
+
+.task-dropdown-item:last-child:hover {
+    background-color: #fee;
+    color: #dc3545;
+}
+
+.dropdown-icon {
+    font-size: 14px;
+    width: 16px;
+    text-align: center;
 }
 
 .task-option-btn {
@@ -503,17 +643,45 @@ a:hover {
     align-items: center;
     justify-content: center;
     font-size: 16px;
-    padding: 0;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
 }
 
 .task-option-btn:hover {
-    background-color: transparent;
+    background-color: rgba(0, 0, 0, 0.1);
     border: none;
 }
 
 .task-option-btn:focus {
     outline: none;
     box-shadow: none;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+    .task-dropdown-menu {
+        background-color: #1e1e1e;
+        border: 1px solid #333;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .task-dropdown-item:hover {
+        background-color: #333;
+    }
+
+    .task-dropdown-item:last-child:hover {
+        background-color: #2a1a1a;
+        color: #ff6b6b;
+    }
+
+    .task-menu-btn {
+        color: #f5f5f5;
+    }
+
+    .task-menu-btn:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
 }
 
 .empty-state {
@@ -548,7 +716,17 @@ a:hover {
     width: 90%;
     max-width: 480px;
     position: relative;
-    box-shadow: var(--shadow);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    z-index: 1001;
+}
+
+/* Ensure edit modal is visible when displayed */
+#editTask {
+    display: none;
+}
+
+#editTask[style*="block"] {
+    display: flex !important;
 }
 
 .form-group textarea {
@@ -964,4 +1142,71 @@ a:hover {
     .sitemap-title {
         color: #f5f5f5;
     }
+}
+
+.profile-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.8rem;
+    background: var(--background-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 16px var(--border-color);
+    margin: 1.5rem auto;
+    padding: 2rem;
+    width: 100%;
+    max-width: 450px;
+}
+
+.profile-card h2 {
+    font-size: 1.3rem;
+    color: var(--text-color);
+    text-align: center;
+}
+
+.profile-header {
+    border-top: 2px solid #e9ebec;
+}
+
+.profile-header h2 {
+    font-size: 1.3rem;
+    color: var(--text-color);
+    margin-top: 1.3rem;
+    margin-bottom: 0rem;
+    text-align: center;
+}
+
+.info-usuario h2 {
+    color: var(--text-color);
+    text-align: left;
+    margin: 0;
+    font-size: 17px;
+}
+
+.info-usuario p {
+    text-align: left;
+    margin: 5px 0 0;
+    color: var(--text-color);
+    opacity: 0.42;
+    font-size: 14px;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    text-align: left;
+}
+
+.profile-avatar {
+    width: 50px;
+    height: 50px;
+    background-color: #2d3436;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 20px;
+    margin-right: 10px;
 }

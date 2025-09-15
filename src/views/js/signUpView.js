@@ -118,4 +118,162 @@ export function initSignup() {
       validateForm();
     }
   });
+
+  /**
+   * Initializes dynamic password validation
+   * @private
+   */
+  function initPasswordValidation() {
+    const passwordInput = document.getElementById("sign-up-password");
+
+    if (!passwordInput) {
+      console.warn("Password input not found");
+      return;
+    }
+
+    // Add event listeners for real-time validation
+    passwordInput.addEventListener("input", validatePasswordRequirements);
+    passwordInput.addEventListener("focus", showPasswordRequirements);
+    passwordInput.addEventListener("blur", hidePasswordRequirementsIfEmpty);
+  }
+
+  /**
+   * Validates password requirements in real-time
+   * @private
+   */
+  function validatePasswordRequirements() {
+    const passwordInput = document.getElementById("sign-up-password");
+    const password = passwordInput.value;
+    const requirementsDiv = document.querySelector(".password-requirements");
+
+    // Get requirement elements
+    const requirements = {
+      length: document.getElementById("req-length"),
+      uppercase: document.getElementById("req-uppercase"),
+      lowercase: document.getElementById("req-lowercase"),
+      number: document.getElementById("req-number"),
+      special: document.getElementById("req-special")
+    };
+
+    // Validation rules
+    const validations = {
+      length: password.length >= 8,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /\d/.test(password),
+      special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    };
+
+    // Check if any requirement is failing
+    const hasFailingRequirements = Object.values(validations).some(valid => !valid);
+    const hasPassword = password.length > 0;
+
+    // Show requirements only if there's a password and some requirements are failing
+    if (requirementsDiv) {
+      if (hasPassword && hasFailingRequirements) {
+        requirementsDiv.classList.add("show");
+      } else {
+        requirementsDiv.classList.remove("show");
+      }
+    }
+
+    // Update each requirement's visual state
+    Object.keys(requirements).forEach(key => {
+      const element = requirements[key];
+      const isValid = validations[key];
+
+      if (element) {
+        if (isValid) {
+          element.classList.remove("invalid");
+          element.classList.add("valid");
+        } else {
+          element.classList.remove("valid");
+          element.classList.add("invalid");
+        }
+      }
+    });
+
+    // Update button state based on all validations
+    updateSignUpButtonState();
+  }
+
+  /**
+   * Shows password requirements when focusing on password field
+   * @private
+   */
+  function showPasswordRequirements() {
+    const passwordInput = document.getElementById("sign-up-password");
+    const requirementsDiv = document.querySelector(".password-requirements");
+
+    // Only show if there's a password and it has failing requirements
+    if (requirementsDiv && passwordInput) {
+      const password = passwordInput.value;
+      const hasPassword = password.length > 0;
+      const passwordValid = password.length >= 8 &&
+        /[A-Z]/.test(password) &&
+        /[a-z]/.test(password) &&
+        /\d/.test(password) &&
+        /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+      if (hasPassword && !passwordValid) {
+        requirementsDiv.classList.add("show");
+      }
+    }
+  }
+
+  /**
+   * Hides password requirements if password field is empty or all requirements are met
+   * @private
+   */
+  function hidePasswordRequirementsIfEmpty() {
+    const passwordInput = document.getElementById("sign-up-password");
+    const requirementsDiv = document.querySelector(".password-requirements");
+
+    if (requirementsDiv && passwordInput) {
+      const password = passwordInput.value.trim();
+
+      // Hide if password is empty
+      if (password === "") {
+        requirementsDiv.classList.remove("show");
+      }
+    }
+  }
+
+  /**
+     * Updates sign up button state based on form validation
+     * @private
+     */
+  function updateSignUpButtonState() {
+    const button = document.getElementById("sign-up-button");
+    const passwordInput = document.getElementById("sign-up-password");
+    const emailInput = document.getElementById("sign-up-email");
+    const firstNameInput = document.getElementById("sign-up-first-name");
+    const lastNameInput = document.getElementById("sign-up-last-name");
+    const ageInput = document.getElementById("sign-up-age");
+
+    if (!button || !passwordInput || !emailInput || !firstNameInput || !lastNameInput || !ageInput) {
+      return;
+    }
+
+    const password = passwordInput.value;
+    const email = emailInput.value.trim();
+    const firstName = firstNameInput.value.trim();
+    const lastName = lastNameInput.value.trim();
+    const age = parseInt(ageInput.value);
+
+    // Check if all password requirements are met
+    const passwordValid = password.length >= 8 &&
+      /[A-Z]/.test(password) &&
+      /[a-z]/.test(password) &&
+      /\d/.test(password) &&
+      /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    // Check if all other fields are filled
+    const fieldsValid = email && firstName && lastName && age >= 13;
+
+    // Enable/disable button
+    button.disabled = !(passwordValid && fieldsValid);
+  }
+
+  initPasswordValidation();
 }

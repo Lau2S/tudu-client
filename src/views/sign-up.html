@@ -38,13 +38,28 @@
     <label for="confirm-password">Confirmar Contraseña</label>
     <input type="password" id="confirm-password" name="password" placeholder="Ingrese su contraseña" required>
     <div class="password-requirements">
-      <h3>La contraseña debe tener:</h3>
-      <ul>
-        <li id="length" class="invalid">Al menos 8 caracteres</li>
-        <li id="uppercase" class="invalid">Al menos una mayúscula</li>
-        <li id="lowercase" class="invalid">Al menos una minúscula</li>
-        <li id="number" class="invalid">Al menos un número</li>
-        <li id="special" class="invalid">Al menos un caracter especial: @,$,!,%,?,&,#</li>
+      <h3>La contraseña debe cumplir:</h3>
+      <ul id="passwordRequirements">
+        <li id="req-length" class="requirement">
+          <span class="requirement-icon"></span>
+          <span class="requirement-text">Al menos 8 caracteres</span>
+        </li>
+        <li id="req-uppercase" class="requirement">
+          <span class="requirement-icon"></span>
+          <span class="requirement-text">Una letra mayúscula</span>
+        </li>
+        <li id="req-lowercase" class="requirement">
+          <span class="requirement-icon"></span>
+          <span class="requirement-text">Una letra minúscula</span>
+        </li>
+        <li id="req-number" class="requirement">
+          <span class="requirement-icon"></span>
+          <span class="requirement-text">Un número</span>
+        </li>
+        <li id="req-special" class="requirement">
+          <span class="requirement-icon"></span>
+          <span class="requirement-text">Un carácter especial (!@#$%^&*)</span>
+        </li>
       </ul>
     </div>
     <button type="submit" id="sign-up-button" disabled>Continuar</button>

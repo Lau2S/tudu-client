@@ -91,7 +91,7 @@ export async function loginUser({ email, password }) {
  */
 export async function getUserProfile(userId) {
   const token = localStorage.getItem('token');
-  return http.get(`/users/${userId}`, {
+  return http.get(`/users/me`, {
     headers: {
       'Authorization': `Bearer ${token}`
     }
@@ -119,7 +119,7 @@ export async function getUserProfile(userId) {
  */
 export async function updateUserProfile(userId, updates) {
   const token = localStorage.getItem('token');
-  return http.put(`/users/${userId}`, updates, {
+  return http.put(`/users/me/${userId}`, updates, {
     headers: {
       'Authorization': `Bearer ${token}`
     }
@@ -142,7 +142,7 @@ export async function updateUserProfile(userId, updates) {
  * }
  */
 export async function deleteUser(userId) {
-  const token = sessionStorage.getItem('token');
+  const token = localStorage.getItem('token');
   return http.del(`/users/${userId}`, {
     headers: {
       'Authorization': `Bearer ${token}`
