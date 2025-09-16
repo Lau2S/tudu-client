@@ -117,13 +117,49 @@ export async function getUserProfile(userId) {
  *   console.error("Update failed:", err.message);
  * }
  */
+// export async function updateUserProfile(userId, updates) {
+//   const token = localStorage.getItem('token');
+//   return http.put(`/users/me/${userId}`, updates, {
+//     headers: {
+//       'Authorization': `Bearer ${token}`
+//     }
+//   });
+// }
+
 export async function updateUserProfile(userId, updates) {
   const token = localStorage.getItem('token');
-  return http.put(`/users/me/${userId}`, updates, {
+  
+  // Usar la ruta correcta sin /me
+  const response = await http.put(`/users/me/${userId}`, updates, {
     headers: {
       'Authorization': `Bearer ${token}`
     }
   });
+
+  // Si el backend devuelve un nuevo token (cuando se cambia el email), actualizarlo
+  if (response.token) {
+    localStorage.setItem('token', response.token);
+    console.log('Token actualizado debido a cambio de email');
+  }
+
+  // Si se actualizó el nombre, actualizar también en localStorage
+  if (updates.firstName || updates.lastName) {
+    const firstName = updates.firstName || response.user?.firstName;
+    const lastName = updates.lastName || response.user?.lastName;
+    
+    if (firstName && lastName) {
+      const fullName = `${firstName} ${lastName}`;
+      localStorage.setItem("userName", fullName);
+      localStorage.setItem("userFirstName", firstName);
+    }
+  }
+
+  // Si se actualizó el email, actualizar también en localStorage
+  if (updates.email) {
+    localStorage.setItem("userEmail", updates.email);
+  }
+
+  return response;
 }
 
 /**
