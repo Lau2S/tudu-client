@@ -49,6 +49,14 @@ body {
     padding: var(--spacing);
 }
 
+.about-us{
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin-bottom: 0.6rem;
+    margin-top: 0rem;
+    font-weight: 500;
+    font-size: 2.8rem;
+}
+
 .nav-buttons {
     display: flex;
     gap: 12px;
@@ -426,8 +434,8 @@ a:hover {
     cursor: pointer;
     transition: all 0.3s ease;
     position: fixed;
-    bottom: 32px;
-    right: 32px;
+    bottom: 45px;
+    right: 55px;
     z-index: 100;
 }
 

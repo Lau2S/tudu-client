@@ -53,11 +53,13 @@ async function loadUserData() {
     // Poblar el formulario usando los IDs específicos
     const nameInput = document.getElementById('name');
     const lastNameInput = document.getElementById('last-name');
+    const emailInput = document.getElementById('email');
     const ageInput = document.getElementById('age');
     const createAt = document.getElementById('createAt');
 
     if (nameInput) nameInput.value = userProfile.firstName || '';
     if (lastNameInput) lastNameInput.value = userProfile.lastName || '';
+    if (emailInput) emailInput.value = userProfile.email || '';
     if (ageInput) ageInput.value = userProfile.age || '';
     if (createAt) {
       const createdDate = new Date(userProfile.createdAt);
@@ -136,6 +138,7 @@ function initProfileForm() {
 
     const firstNameInput = document.getElementById('name');
     const lastNameInput = document.getElementById('last-name');
+    const emailInput = document.getElementById('email');
     const ageInput = document.getElementById('age');
     const currentPasswordInput = document.getElementById('current-password');
     const newPasswordInput = document.getElementById('new-password');
@@ -143,13 +146,14 @@ function initProfileForm() {
 
     const firstName = firstNameInput ? firstNameInput.value.trim() : '';
     const lastName = lastNameInput ? lastNameInput.value.trim() : '';
+    const email = emailInput ? emailInput.value.trim() : '';
     const age = ageInput ? ageInput.value : '';
     const currentPassword = currentPasswordInput ? currentPasswordInput.value.trim() : '';
     const newPassword = newPasswordInput ? newPasswordInput.value.trim() : '';
     const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value.trim() : '';
 
-    if (!firstName || !lastName || !age) {
-      showToast("Nombre, apellido y edad son obligatorios", "error");
+    if (!firstName || !lastName || !email || !age) {
+      showToast("Nombre, apellido, edad y correo son obligatorios", "error");
       return;
     }
 
@@ -186,7 +190,8 @@ function initProfileForm() {
       const updateData = {
         firstName,
         lastName,
-        age: parseInt(age)
+        email,
+        age: parseInt(age),
       };
 
       // Agregar contraseña si se quiere cambiar
@@ -201,6 +206,7 @@ function initProfileForm() {
       const fullName = `${firstName} ${lastName}`;
       localStorage.setItem("userName", fullName);
       localStorage.setItem("userFirstName", firstName);
+      localStorage.setItem("userEmail", email);
 
       showSuccessToast("✅ Perfil actualizado correctamente");
 
