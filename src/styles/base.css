@@ -363,17 +363,33 @@ a:hover {
     background-color: var(--secondary-color);
     color: white;
     text-align: center;
-    padding: 1rem;
+    padding: 1.8rem;
     font-size: 0.875rem;
 }
 
-.footer a {
-    color: white;
-    text-decoration: none;
-    font-weight: 200;
+.footer-content{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    text-align: center;
 }
 
-.footer a:hover {
+
+.footer-nav {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.footer-nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.footer-nav a:hover {
     text-decoration: underline;
 }
 
@@ -931,22 +947,6 @@ a:hover {
     cursor: pointer;
 }
 
-/* .recovery-password {
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background: rgba(0, 0, 0, 0.5);
-    display: none;
-    backdrop-filter: blur(4px);
-    box-sizing: border-box;
-    padding: 1rem;
-} */
-
-
 .modal-password-content {
     background: var(--background-color);
     margin: 5% auto;
@@ -1232,65 +1232,46 @@ a:hover {
     }
 }
 
-.profile-card {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 0.8rem;
-    background: var(--background-color);
-    border-radius: 12px;
-    box-shadow: 0 4px 16px var(--border-color);
-    margin: 1.5rem auto;
-    padding: 2rem;
-    width: 100%;
-    max-width: 450px;
-}
 
-.profile-card h2 {
-    font-size: 1.3rem;
-    color: var(--text-color);
-    text-align: center;
-}
+@media (max-width: 576px) {
 
-.profile-header{
-    border-top: 2px solid #e9ebec;
-    margin-bottom: 1.3rem;
-    color: var(--text-color);
-    opacity: 0.42;
-}
+    .main {
+        padding: 1.5rem;
+    }
 
+    .profile-card {
+        margin: 1rem; 
+        padding: 1rem; 
+        max-width: none;
+        box-shadow: 0 4px 16px var(--border-color);
+        border-radius: 8px;
+    }
+    
+    .registration-card {
+        padding: 1rem;
+        margin: 1rem;
+        max-width: none;
+        box-shadow: 0 4px 16px var(--border-color);
+        border-radius: 8px;
+    }
+    
+    .btn {
+        font-size: 10px; 
+        padding: 0.5rem 1rem; 
+        width: 100%; 
+        display: block; 
+        text-align: center;
+    }
 
-.info-usuario h2 {
-    color: var(--text-color);
-    text-align: left;
-    margin: 0;
-    font-size: 17px;
-}
-
-.info-usuario p {
-    text-align: left;
-    margin: 5px 0 0;
-    color: var(--text-color);
-    opacity: 0.42;
-    font-size: 14px;
-}
-
-.user-profile {
-    display: flex;
-    align-items: center;
-    text-align: left;
-}
-
-.profile-avatar {
-    width: 50px;
-    height: 50px;
-    background-color: #2d3436;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: 600;
-    font-size: 20px;
-    margin-right: 10px;
+    .footer-content {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .footer-nav {
+        justify-content: center;
+        flex-direction: row;
+        gap: 1rem;
+    }
+    
 }
