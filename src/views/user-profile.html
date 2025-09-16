@@ -1,0 +1,69 @@
+<header class="header">
+  <!-- PERFIL DE USUARIO -->
+  <div class="user-profile">
+    <div class="profile-avatar">N</div>
+    <div class="info-usuario">
+      <h2>Nombre Usuario</h2>
+      <p>correoejemplo@gmail.com</p>
+    </div>
+    <span class="dropdown-arrow">▼</span>
+
+    <!-- Menú desplegable -->
+    <div class="user-dropdown">
+      <ul>
+        <li id="taskOption">Tus tareas</li>
+        <li id="logoutOption">Cerrar sesión</li>
+      </ul>
+    </div>
+  </div>
+
+  <nav class="nav-buttons">
+    <button class="btn btn-primary">Eliminar cuenta</button>
+  </nav>
+</header>
+<main>
+  <form class="profile-card">
+    <div>
+      <div>
+        <h2 class="form-title">Edita tu perfil</h2>
+        <p class="form-subtitle">Actuliaza tu informacion personal y guarda los cambios</p>
+      </div>
+
+      <div class="name-row">
+        <div class="form-group">
+          <label for="name">Nombre</label>
+          <input type="text" id="name">
+        </div>
+        <div class="form-group">
+          <label for="last-name">Apellido</label>
+          <input type="text" id="last-name">
+        </div>
+      </div>
+
+       <div class="form-group">
+        <label for="age">Email</label>
+        <input type="email" id="email">
+      </div>
+
+      <div class="form-group">
+        <label for="age">Edad</label>
+        <input type="number" id="age">
+      </div>
+
+      <div id="age-error"
+        style="color: red; font-size: 0.85rem; margin-top: -0.5rem; margin-bottom: 0.8rem; display: none;">
+        ❌ Debes tener al menos 13 años
+      </div>
+
+    </div>
+
+    <div class="profile-header">
+      <p id="createAt"></p>
+
+    </div>
+
+    <button>Guardar Cambios</button>
+
+  </form>
+
+</main>

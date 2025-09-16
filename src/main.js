@@ -5,8 +5,8 @@
  * @version 1.0.0
  */
 
-import './styles/base.css';
 import { initRouter } from './routes/route.js';
+import './styles/base.css';
 
 /**
  * Initialize the application.
