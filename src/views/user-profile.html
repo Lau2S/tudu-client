@@ -40,7 +40,7 @@
         </div>
       </div>
 
-       <div class="form-group">
+      <div class="form-group">
         <label for="age">Email</label>
         <input type="email" id="email">
       </div>
@@ -67,3 +67,17 @@
   </form>
 
 </main>
+
+
+<!-- Modal para confirmar cambios de perfil -->
+<div id="editProfileModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <span class="close-modal">&times;</span>
+    <h2>Confirmar cambios de perfil</h2>
+    <p>¿Estás seguro de que deseas guardar los cambios en tu perfil?</p>
+    <div class="buttons-modal">
+      <button type="button" id="cancelEditProfileBtn">Cancelar</button>
+      <button type="button" id="confirmEditProfile">Guardar cambios</button>
+    </div>
+  </div>
+</div>

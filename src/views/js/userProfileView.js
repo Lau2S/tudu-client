@@ -130,6 +130,9 @@ function initProfileForm() {
   // Inicializar validación de edad
   initAgeValidation();
 
+  // Inicializar modal de confirmación
+  initEditProfileModal();
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -137,7 +140,7 @@ function initProfileForm() {
     const lastNameInput = document.getElementById('last-name');
     const emailInput = document.getElementById('email');
     const ageInput = document.getElementById('age');
-  
+
     const firstName = firstNameInput ? firstNameInput.value.trim() : '';
     const lastName = lastNameInput ? lastNameInput.value.trim() : '';
     const email = emailInput ? emailInput.value.trim() : '';
@@ -153,38 +156,104 @@ function initProfileForm() {
       return;
     }
 
-
-    try {
-      saveBtn.disabled = true;
-      saveBtn.textContent = "Guardando...";
-
-      const currentUser = getCurrentUser();
-
-      const updateData = {
-        firstName,
-        lastName,
-        email,
-        age: parseInt(age),
-      };
-
-      await updateUserProfile(currentUser.userId, updateData);
-
-      showSuccessToast("✅ Perfil actualizado correctamente");
-
-      setTimeout(() => {
-        location.hash = "#/dashboard";
-      }, 1500);
-
-    } catch (error) {
-      console.error("Error updating profile:", error);
-      showToast("Error al actualizar el perfil: " + (error.message || error), "error");
-    } finally {
-      saveBtn.disabled = false;
-      saveBtn.textContent = "Guardar Cambios";
+    // Mostrar modal de confirmación en lugar de guardar directamente
+    const modal = document.getElementById("editProfileModal");
+    if (modal) {
+      modal.style.display = "block";
     }
   });
 }
 
+/**
+ * Initializes the edit profile confirmation modal.
+ * @private
+ */
+function initEditProfileModal() {
+  const modal = document.getElementById("editProfileModal");
+  const closeButtons = modal?.querySelectorAll(".close-modal");
+  const confirmBtn = document.getElementById("confirmEditProfile");
+  const cancelBtn = document.getElementById("cancelEditProfileBtn");
+
+  if (!modal) {
+    console.warn("Edit profile modal not found");
+    return;
+  }
+
+  // Cerrar modal con botones de cerrar (X y cancelar)
+  closeButtons?.forEach(btn => {
+    btn.addEventListener("click", () => {
+      modal.style.display = "none";
+    });
+  });
+
+  // Cerrar con botón cancelar específico
+  cancelBtn?.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  // Cerrar al hacer click fuera del modal
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      modal.style.display = "none";
+    }
+  });
+
+  // Confirmar cambios
+  confirmBtn?.addEventListener("click", async () => {
+    modal.style.display = "none";
+    await executeProfileUpdate();
+  });
+}
+
+/**
+ * Executes the profile update process
+ * @private
+ */
+async function executeProfileUpdate() {
+  const saveBtn = document.querySelector("button");
+  const firstNameInput = document.getElementById('name');
+  const lastNameInput = document.getElementById('last-name');
+  const emailInput = document.getElementById('email');
+  const ageInput = document.getElementById('age');
+
+  const firstName = firstNameInput ? firstNameInput.value.trim() : '';
+  const lastName = lastNameInput ? lastNameInput.value.trim() : '';
+  const email = emailInput ? emailInput.value.trim() : '';
+  const age = ageInput ? ageInput.value : '';
+
+  try {
+    if (saveBtn) {
+      saveBtn.disabled = true;
+      saveBtn.textContent = "Guardando...";
+    }
+
+    const currentUser = getCurrentUser();
+
+    const updateData = {
+      firstName,
+      lastName,
+      email,
+      age: parseInt(age),
+    };
+
+    await updateUserProfile(currentUser.userId, updateData);
+
+    showSuccessToast("✅ Perfil actualizado correctamente");
+
+    setTimeout(() => {
+      location.hash = "#/dashboard";
+    }, 1500);
+
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    showToast("Error al actualizar el perfil: " + (error.message || error), "error");
+  } finally {
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.textContent = "Guardar Cambios";
+    }
+  }
+}
 
 /**
  * Initializes age validation for profile form
