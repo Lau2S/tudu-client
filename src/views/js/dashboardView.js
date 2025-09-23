@@ -212,21 +212,23 @@ function createTaskCard(task) {
   const detail = task.detail || task.description || "";
 
   let dateHtml = "";
-  if (task.dueDate) {
-    try {
-      const d = new Date(task.dueDate);
-      if (!isNaN(d.getTime())) {
-        const dateStr = d.toLocaleDateString("es-ES");
-        const timeStr = d.toLocaleTimeString("es-ES", {
-          hour: "2-digit",
-          minute: "2-digit",
-        });
-        dateHtml = `<div class="task-datetime">📅 ${dateStr} ⏰ ${timeStr}</div>`;
-      }
-    } catch (err) {
-      console.warn("Error processing task date:", err);
+  if (task.date) {
+  try {
+    const d = new Date(task.date);
+    if (!isNaN(d.getTime())) {
+      const dateOnly = task.date.split('T')[0]; 
+      const timeOnly = task.date.split('T')[1]?.split(':').slice(0, 2).join(':'); 
+      
+      const [year, month, day] = dateOnly.split('-');
+      const dateStr = `${day}/${month}/${year}`;
+      const timeStr = timeOnly || "00:00";
+      
+      dateHtml = `<div class="task-datetime">📅 ${dateStr} ⏰ ${timeStr}</div>`;
     }
+  } catch (err) {
+    console.warn("Error processing task date:", err);
   }
+}
 
   card.innerHTML = `
     <div class="task-options">
