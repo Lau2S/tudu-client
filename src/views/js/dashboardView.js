@@ -60,6 +60,8 @@ export async function initDashboard() {
   initCreateTaskModal();
   initEditTaskModal();
   initTaskActions();
+  initDeleteTaskModal();
+  initLogoutModal();
 }
 
 /**
@@ -293,16 +295,14 @@ function initUserDropdown() {
   }
 
   if (logoutOption) {
-    logoutOption.addEventListener("click", async () => {
-      try {
-        await logoutUser();
-      } catch (err) {
-        console.warn("Error en logout:", err);
+    logoutOption.addEventListener("click", () => {
+      const modal = document.getElementById("logoutModal");
+      if (modal) {
+        modal.style.display = "block";
+      } else {
+        // Fallback al logout directo si no existe el modal
+        executeLogout();
       }
-      localStorage.clear();
-      sessionStorage.clear();
-      location.hash = "#/sign-in";
-      showToast("Sesión cerrada correctamente", "success");
     });
   }
 }
@@ -338,9 +338,20 @@ function initCreateTaskModal() {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const submitBtn = form.querySelector('button[type="submit"]');
+
+    // Verificar si ya se está procesando
+    if (submitBtn.disabled) {
+      return;
+    }
+
     const originalText = submitBtn.textContent;
     submitBtn.disabled = true;
     submitBtn.textContent = "Guardando...";
+
+    // Deshabilitar también el botón de cancelar
+    if (cancelBtn) {
+      cancelBtn.disabled = true;
+    }
 
     try {
       const data = new FormData(form);
@@ -376,6 +387,9 @@ function initCreateTaskModal() {
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = originalText;
+      if (cancelBtn) {
+        cancelBtn.disabled = false;
+      }
     }
   });
 }
@@ -405,9 +419,20 @@ function initEditTaskModal() {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const submitBtn = form.querySelector('button[type="submit"]');
+
+    // Verificar si ya se está procesando
+    if (submitBtn.disabled) {
+      return;
+    }
+
     const originalText = submitBtn.textContent;
     submitBtn.disabled = true;
     submitBtn.textContent = "Guardando...";
+
+    // Deshabilitar también el botón de cancelar para evitar interferencias
+    if (cancelBtn) {
+      cancelBtn.disabled = true;
+    }
 
     try {
       const data = new FormData(form);
@@ -441,6 +466,9 @@ function initEditTaskModal() {
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = originalText;
+      if (cancelBtn) {
+        cancelBtn.disabled = false;
+      }
     }
   });
 }
@@ -450,13 +478,26 @@ function initEditTaskModal() {
  * @private
  */
 function initTaskActions() {
+  // Variable para controlar la última acción ejecutada
+  let lastActionTime = 0;
+  const ACTION_DEBOUNCE_TIME = 500; // 500ms de espera entre acciones
+
   document.addEventListener("click", async (e) => {
-    // Handle menu button click
-    if (e.target.classList.contains("task-menu-btn")) {
+    // Debounce para evitar clicks múltiples rápidos
+    const currentTime = Date.now();
+    if (currentTime - lastActionTime < ACTION_DEBOUNCE_TIME) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+
+    // Handle menu button click - verificar tanto el botón como sus elementos hijos
+    if (e.target.classList.contains("task-menu-btn") || e.target.closest(".task-menu-btn")) {
       e.stopPropagation();
       e.preventDefault();
 
-      const dropdown = e.target.nextElementSibling;
+      const menuBtn = e.target.classList.contains("task-menu-btn") ? e.target : e.target.closest(".task-menu-btn");
+      const dropdown = menuBtn.nextElementSibling;
       const isVisible = dropdown.classList.contains("active");
 
       // Close all other dropdowns
@@ -478,7 +519,14 @@ function initTaskActions() {
 
       const card = e.target.closest(".task-card");
       const dropdown = e.target.closest(".task-dropdown-menu");
+
+      // Verificar si la tarea ya se está editando
+      if (card.dataset.editing === 'true') {
+        return;
+      }
+
       dropdown.classList.remove("active");
+      lastActionTime = currentTime;
 
       handleEditTask(card);
       return;
@@ -490,7 +538,14 @@ function initTaskActions() {
 
       const card = e.target.closest(".task-card");
       const dropdown = e.target.closest(".task-dropdown-menu");
+
+      // Verificar si la tarea ya se está eliminando
+      if (card.dataset.deleting === 'true') {
+        return;
+      }
+
       dropdown.classList.remove("active");
+      lastActionTime = currentTime;
 
       handleDeleteTask(card);
       return;
@@ -501,6 +556,14 @@ function initTaskActions() {
       document.querySelectorAll(".task-dropdown-menu.active").forEach(menu => {
         menu.classList.remove("active");
       });
+    }
+  });
+
+  // Agregar eventos de mouseover para mejorar la interactividad
+  document.addEventListener("mouseover", (e) => {
+    if (e.target.classList.contains("task-menu-btn") || e.target.closest(".task-menu-btn")) {
+      const btn = e.target.classList.contains("task-menu-btn") ? e.target : e.target.closest(".task-menu-btn");
+      btn.style.cursor = "pointer";
     }
   });
 }
@@ -515,6 +578,15 @@ async function handleEditTask(card) {
     console.error("Task ID not found");
     return;
   }
+
+  // Verificar si ya se está editando esta tarea
+  if (card.dataset.editing === 'true') {
+    console.log("Edit already in progress for this task");
+    return;
+  }
+
+  // Marcar la tarea como en proceso de edición
+  card.dataset.editing = 'true';
 
   // Get current task data from the card
   const titleEl = card.querySelector(".task-title");
@@ -544,7 +616,14 @@ async function handleEditTask(card) {
     }
   }
 
-  openEditModal(taskId, taskData);
+  try {
+    openEditModal(taskId, taskData);
+  } finally {
+    // Limpiar el flag después de abrir el modal
+    setTimeout(() => {
+      card.dataset.editing = 'false';
+    }, 1000);
+  }
 }
 
 /**
@@ -558,15 +637,21 @@ async function handleDeleteTask(card) {
     return;
   }
 
-  if (!confirm("¿Seguro que quieres eliminar esta tarea?")) return;
+  // Verificar si ya se está procesando una eliminación para esta tarea
+  if (card.dataset.deleting === 'true') {
+    console.log("Delete already in progress for this task");
+    return;
+  }
 
-  try {
-    await deleteTask(taskId);
-    showToast("🗑️ Tarea eliminada", "success");
-    await loadTasksFromBackend();
-  } catch (err) {
-    console.error("Error eliminando tarea:", err);
-    showToast("❌ Error eliminando: " + (err.message || err), "error");
+  // Mostrar modal de confirmación
+  const modal = document.getElementById("deleteTaskModal");
+  if (modal) {
+    modal.dataset.taskCard = taskId;
+    modal.style.display = "block";
+  } else {
+    // Fallback al confirm nativo si no existe el modal
+    if (!confirm("¿Seguro que quieres eliminar esta tarea?")) return;
+    await executeDeleteTask(taskId);
   }
 }
 
@@ -656,4 +741,157 @@ function getTaskStatusFromColumn(card) {
   if (column?.classList.contains('progress-column')) return 'progress';
   if (column?.classList.contains('completed-column')) return 'completed';
   return 'pending';
+}
+
+/**
+ * Initializes the delete task confirmation modal.
+ * @private
+ */
+function initDeleteTaskModal() {
+  const modal = document.getElementById("deleteTaskModal");
+  const closeBtn = modal?.querySelector(".close-modal");
+  const cancelBtn = document.getElementById("cancelDeleteTaskBtn");
+  const confirmBtn = document.getElementById("confirmDeleteTaskBtn");
+
+  if (!modal) {
+    console.warn("Delete task modal not found");
+    return;
+  }
+
+  // Cerrar modal
+  closeBtn?.addEventListener("click", () => {
+    modal.style.display = "none";
+    clearPendingDelete();
+  });
+
+  cancelBtn?.addEventListener("click", () => {
+    modal.style.display = "none";
+    clearPendingDelete();
+  });
+
+  // Cerrar al hacer click fuera del modal
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      modal.style.display = "none";
+      clearPendingDelete();
+    }
+  });
+
+  // Confirmar eliminación
+  confirmBtn?.addEventListener("click", async () => {
+    const taskCard = modal.dataset.taskCard;
+    if (taskCard) {
+      modal.style.display = "none";
+      await executeDeleteTask(taskCard);
+    }
+  });
+}
+
+/**
+ * Initializes the logout confirmation modal.
+ * @private
+ */
+function initLogoutModal() {
+  const modal = document.getElementById("logoutModal");
+  const closeBtn = modal?.querySelector(".close-modal");
+  const cancelBtn = document.getElementById("cancelLogoutBtn");
+  const confirmBtn = document.getElementById("confirmLogoutBtn");
+
+  if (!modal) {
+    console.warn("Logout modal not found");
+    return;
+  }
+
+  // Cerrar modal
+  closeBtn?.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  cancelBtn?.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  // Cerrar al hacer click fuera del modal
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      modal.style.display = "none";
+    }
+  });
+
+  // Confirmar logout
+  confirmBtn?.addEventListener("click", async () => {
+    modal.style.display = "none";
+    await executeLogout();
+  });
+}
+
+/**
+ * Clears pending delete state
+ * @private
+ */
+function clearPendingDelete() {
+  const modal = document.getElementById("deleteTaskModal");
+  if (modal.dataset.taskCard) {
+    const cardId = modal.dataset.taskCard;
+    const card = document.querySelector(`[data-task-id="${cardId}"]`);
+    if (card) {
+      card.dataset.deleting = 'false';
+      card.style.opacity = '1';
+      card.style.pointerEvents = 'auto';
+
+      const deleteBtn = card.querySelector('.delete-option');
+      if (deleteBtn) {
+        deleteBtn.style.pointerEvents = 'auto';
+        deleteBtn.style.opacity = '1';
+      }
+    }
+    delete modal.dataset.taskCard;
+  }
+}
+
+/**
+ * Executes the actual task deletion
+ * @private
+ */
+async function executeDeleteTask(taskId) {
+  const card = document.querySelector(`[data-task-id="${taskId}"]`);
+  if (!card) {
+    console.error("Task card not found");
+    return;
+  }
+
+  // Marcar la tarea como en proceso de eliminación
+  card.dataset.deleting = 'true';
+  card.style.opacity = '0.5';
+  card.style.pointerEvents = 'none';
+
+  try {
+    await deleteTask(taskId);
+    showToast("🗑️ Tarea eliminada", "success");
+    await loadTasksFromBackend();
+  } catch (err) {
+    console.error("Error eliminando tarea:", err);
+    showToast("❌ Error eliminando: " + (err.message || err), "error");
+
+    // Restaurar el estado si hay error
+    card.dataset.deleting = 'false';
+    card.style.opacity = '1';
+    card.style.pointerEvents = 'auto';
+  }
+}
+
+/**
+ * Executes the logout process
+ * @private
+ */
+async function executeLogout() {
+  try {
+    await logoutUser();
+  } catch (err) {
+    console.warn("Error en logout:", err);
+  }
+  localStorage.clear();
+  sessionStorage.clear();
+  location.hash = "#/sign-in";
+  showToast("Sesión cerrada correctamente", "success");
 }

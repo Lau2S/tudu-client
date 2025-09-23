@@ -49,6 +49,14 @@ body {
     padding: var(--spacing);
 }
 
+.about-us {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin-bottom: 0.6rem;
+    margin-top: 0rem;
+    font-weight: 500;
+    font-size: 2.8rem;
+}
+
 .nav-buttons {
     display: flex;
     gap: 12px;
@@ -355,8 +363,34 @@ a:hover {
     background-color: var(--secondary-color);
     color: white;
     text-align: center;
-    padding: 1rem;
+    padding: 1.8rem;
     font-size: 0.875rem;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    text-align: center;
+}
+
+
+.footer-nav {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.footer-nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.footer-nav a:hover {
+    text-decoration: underline;
 }
 
 .user-profile {
@@ -416,8 +450,8 @@ a:hover {
     cursor: pointer;
     transition: all 0.3s ease;
     position: fixed;
-    bottom: 32px;
-    right: 32px;
+    bottom: 45px;
+    right: 55px;
     z-index: 100;
 }
 
@@ -553,6 +587,8 @@ a:hover {
     right: 10px;
     opacity: 1;
     transition: opacity 0.2s ease;
+    z-index: 10;
+    pointer-events: auto;
 }
 
 .task-card:hover .task-options {
@@ -562,12 +598,12 @@ a:hover {
 .task-menu-btn {
     background-color: transparent;
     border: none;
-    cursor: pointer;
+    cursor: pointer !important;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 18px;
-    padding: 8px 12px;
+    padding: 8px 8px;
     border-radius: 6px;
     transition: background-color 0.2s ease;
     font-weight: bold;
@@ -575,16 +611,20 @@ a:hover {
     opacity: 0.5;
     min-width: 32px;
     min-height: 32px;
+    position: relative;
+    z-index: 10;
 }
 
 .task-menu-btn:hover {
     background-color: rgba(0, 0, 0, 0.1);
     opacity: 1;
+    cursor: pointer !important;
 }
 
 .task-menu-btn:focus {
     outline: none;
     box-shadow: none;
+    cursor: pointer !important;
 }
 
 .task-dropdown-menu {
@@ -610,24 +650,71 @@ a:hover {
     opacity: 1;
 }
 
+/* Estilos para tareas en proceso de eliminación o edición */
+.task-card[data-deleting="true"] {
+    opacity: 0.5 !important;
+    pointer-events: none !important;
+    position: relative;
+}
+
+.task-card[data-deleting="true"]::before {
+    content: "Eliminando...";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(220, 53, 69, 0.9);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    z-index: 100;
+    white-space: nowrap;
+}
+
+.task-card[data-editing="true"] .task-options {
+    opacity: 0.3 !important;
+    pointer-events: none !important;
+}
+
+/* Estilos adicionales para botones de tareas */
+.task-menu-btn * {
+    cursor: pointer !important;
+    pointer-events: none;
+}
+
+.task-option-btn * {
+    cursor: pointer !important;
+    pointer-events: none;
+}
+
 .task-dropdown-item {
     padding: 10px 16px;
-    cursor: pointer;
+    cursor: pointer !important;
     transition: background-color 0.2s ease;
     display: flex;
     align-items: center;
     gap: 8px;
     font-size: 14px;
     color: var(--text-color);
+    user-select: none;
+}
+
+.task-dropdown-item * {
+    cursor: pointer !important;
+    pointer-events: none;
 }
 
 .task-dropdown-item:hover {
     background-color: #f1f3f4;
+    cursor: pointer !important;
 }
 
 .task-dropdown-item:last-child:hover {
     background-color: #fee;
     color: #dc3545;
+    cursor: pointer !important;
 }
 
 .dropdown-icon {
@@ -638,7 +725,7 @@ a:hover {
 
 .task-option-btn {
     background-color: transparent;
-    cursor: pointer;
+    cursor: pointer !important;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -646,16 +733,19 @@ a:hover {
     padding: 4px;
     border-radius: 4px;
     transition: background-color 0.2s ease;
+    border: none;
 }
 
 .task-option-btn:hover {
     background-color: rgba(0, 0, 0, 0.1);
     border: none;
+    cursor: pointer !important;
 }
 
 .task-option-btn:focus {
     outline: none;
     box-shadow: none;
+    cursor: pointer !important;
 }
 
 /* Dark mode adjustments */
@@ -718,6 +808,7 @@ a:hover {
     position: relative;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     z-index: 1001;
+    margin: 0 auto;
 }
 
 /* Ensure edit modal is visible when displayed */
@@ -727,6 +818,50 @@ a:hover {
 
 #editTask[style*="block"] {
     display: flex !important;
+}
+
+/* Estilos específicos para modales de confirmación */
+#deleteTaskModal .modal-content,
+#logoutModal .modal-content {
+    max-width: 400px;
+    text-align: center;
+}
+
+#deleteTaskModal .modal-content h2 {
+    color: #dc3545;
+    margin-bottom: 1rem;
+}
+
+#logoutModal .modal-content h2 {
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+#deleteTaskModal .modal-content p,
+#logoutModal .modal-content p {
+    font-size: 1rem;
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+#deleteTaskModal .buttons-modal button:last-child {
+    background-color: #dc3545;
+}
+
+#deleteTaskModal .buttons-modal button:last-child:hover {
+    background-color: #c82333;
+    border-color: #c82333;
+}
+
+#logoutModal .buttons-modal button:last-child {
+    background-color: #6c757d;
+}
+
+#logoutModal .buttons-modal button:last-child:hover {
+    background-color: #5a6268;
+    border-color: #5a6268;
 }
 
 .form-group textarea {
@@ -913,22 +1048,6 @@ a:hover {
     cursor: pointer;
 }
 
-/* .recovery-password {
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background: rgba(0, 0, 0, 0.5);
-    display: none;
-    backdrop-filter: blur(4px);
-    box-sizing: border-box;
-    padding: 1rem;
-} */
-
-
 .modal-password-content {
     background: var(--background-color);
     margin: 5% auto;
@@ -1100,6 +1219,74 @@ a:hover {
     border: 1px solid rgba(128, 128, 128, 0.15);
 }
 
+.profile-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.8rem;
+    background: var(--background-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 16px var(--border-color);
+    margin: 1.5rem auto;
+    padding: 2rem;
+    width: 100%;
+    max-width: 450px;
+}
+
+.profile-card h2 {
+    font-size: 1.3rem;
+    color: var(--text-color);
+    text-align: center;
+}
+
+.profile-header {
+    border-top: 2px solid #e9ebec;
+}
+
+.profile-header p {
+    font-size: 1rem;
+    color: var(--text-color);
+    opacity: 0.42;
+}
+
+.info-usuario h2 {
+    color: var(--text-color);
+    text-align: left;
+    margin: 0;
+    font-size: 17px;
+}
+
+.info-usuario p {
+    text-align: left;
+    margin: 5px 0 0;
+    color: var(--text-color);
+    opacity: 0.42;
+    font-size: 14px;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    text-align: left;
+}
+
+.profile-avatar {
+    width: 50px;
+    height: 50px;
+    background-color: #2d3436;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 20px;
+    margin-right: 10px;
+}
+
+
+
+
 @media (prefers-color-scheme: dark) {
     :root {
         --background-color: #121212;
@@ -1142,71 +1329,75 @@ a:hover {
     .sitemap-title {
         color: #f5f5f5;
     }
+
+    /* Modales de confirmación en modo oscuro */
+    #deleteTaskModal .modal-content,
+    #logoutModal .modal-content {
+        background-color: #1e1e1e;
+        border: 1px solid #333;
+    }
+
+    #deleteTaskModal .modal-content h2 {
+        color: #ff6b6b;
+    }
+
+    #logoutModal .modal-content h2 {
+        color: #f5f5f5;
+    }
+
+    #deleteTaskModal .modal-content p,
+    #logoutModal .modal-content p {
+        color: #e0e0e0;
+    }
 }
 
-.profile-card {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 0.8rem;
-    background: var(--background-color);
-    border-radius: 12px;
-    box-shadow: 0 4px 16px var(--border-color);
-    margin: 1.5rem auto;
-    padding: 2rem;
-    width: 100%;
-    max-width: 450px;
-}
 
-.profile-card h2 {
-    font-size: 1.3rem;
-    color: var(--text-color);
-    text-align: center;
-}
+@media (max-width: 576px) {
 
-.profile-header {
-    border-top: 2px solid #e9ebec;
-}
+    .main {
+        padding: 1.5rem;
+    }
 
-.profile-header h2 {
-    font-size: 1.3rem;
-    color: var(--text-color);
-    margin-top: 1.3rem;
-    margin-bottom: 0rem;
-    text-align: center;
-}
+    .profile-card {
+        margin: 1rem;
+        padding: 1rem;
+        max-width: none;
+        width: calc(100% - 4rem);
+        box-shadow: 0 4px 16px var(--border-color);
+        border-radius: 8px;
+    }
 
-.info-usuario h2 {
-    color: var(--text-color);
-    text-align: left;
-    margin: 0;
-    font-size: 17px;
-}
+    .registration-card {
+        padding: 1rem;
+        margin: 1rem;
+        max-width: none;
+        box-shadow: 0 4px 16px var(--border-color);
+        border-radius: 8px;
+    }
 
-.info-usuario p {
-    text-align: left;
-    margin: 5px 0 0;
-    color: var(--text-color);
-    opacity: 0.42;
-    font-size: 14px;
-}
+    .nav-buttons {
+        width: 100%;
+        gap: 0.5rem;
+    }
 
-.user-profile {
-    display: flex;
-    align-items: center;
-    text-align: left;
-}
+    .btn {
+        font-size: 10px;
+        padding: 0.5rem 1rem;
+        width: 100%;
+        flex: 1;
+        text-align: center;
+        min-width: auto;
+    }
 
-.profile-avatar {
-    width: 50px;
-    height: 50px;
-    background-color: #2d3436;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: 600;
-    font-size: 20px;
-    margin-right: 10px;
+    .footer-content {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .footer-nav {
+        justify-content: center;
+        flex-direction: row;
+        gap: 1rem;
+    }
+
 }
