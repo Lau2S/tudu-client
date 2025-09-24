@@ -1,4 +1,9 @@
 <header class="header">
+  
+  <div class="logo">
+    <a href="#/home"><img src="/logo_tudu.png" alt="Tudu Logo" /></a>
+  </div>
+
   <!-- PERFIL DE USUARIO -->
   <div class="user-profile">
     <div class="profile-avatar">N</div>
@@ -16,10 +21,6 @@
       </ul>
     </div>
   </div>
-
-  <nav class="nav-buttons">
-    <button class="btn btn-primary">Eliminar cuenta</button>
-  </nav>
 </header>
 <main>
   <form class="profile-card">
@@ -64,6 +65,10 @@
 
     <button>Guardar Cambios</button>
 
+    <div class="delete-count-container">
+      <a class="delete-count-link">¿Quieres eliminar tu cuenta?</a>
+    </div>
+
   </form>
 
 </main>
@@ -76,8 +81,27 @@
     <h2>Confirmar cambios de perfil</h2>
     <p>¿Estás seguro de que deseas guardar los cambios en tu perfil?</p>
     <div class="buttons-modal">
-      <button type="button" id="cancelEditProfileBtn">Cancelar</button>
       <button type="button" id="confirmEditProfile">Guardar cambios</button>
+      <button type="button" id="cancelEditProfileBtn">Cancelar</button>
     </div>
+  </div>
+</div>
+
+<!-- Modal para eliminar cuenta -->
+
+<div id="deleteUser" class="modal" style="display: none;">
+  <div class="modal-content">
+    <span class="close-modal">&times;</span>
+    <h2>Elimina tu cuenta</h2>
+    <form id="createTaskForm" autocomplete="off">
+      <div class="form-group">
+        <label for="deleteLink" style="opacity: 0.52;font-size: 15px;">Escribe la palabra "ELIMINAR" para borrar tu cuenta</label>
+        <input id="deleteLink" name="taskTitle" type="text" placeholder="Escribe la palabra" required />
+      </div>
+      <div class="buttons-modal">
+        <button type="submit" id="sendEmail">Eliminar Cuenta</button>
+        <button type="button" id="cancelTaskBtn">Cancelar</button>
+      </div>
+    </form>
   </div>
 </div>

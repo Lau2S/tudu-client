@@ -26,6 +26,7 @@ export async function initUserProfile() {
   await loadUserData();
   initUserDropdown();
   initProfileForm();
+  initDeleteAccountModal();
 }
 
 /**
@@ -290,4 +291,80 @@ function validateAge() {
     ageInput.style.borderColor = '';
     ageError.style.display = 'none';
   }
+}
+
+/**
+ * Initializes the delete account modal and its functionality
+ * @private
+ */
+function initDeleteAccountModal() {
+  const deleteLink = document.querySelector(".delete-count-link");
+  const modal = document.getElementById("deleteUser");
+  const closeBtn = modal?.querySelector(".close-modal");
+  const cancelBtn = document.getElementById("cancelTaskBtn");
+  const form = modal?.querySelector("form");
+  const deleteInput = document.getElementById("deleteLink");
+
+  if (!deleteLink || !modal || !form) {
+    console.warn("Delete account modal elements not found");
+    return;
+  }
+
+  // Abrir modal al hacer click en el link
+  deleteLink.addEventListener("click", () => {
+    modal.style.display = "block";
+    if (deleteInput) deleteInput.value = ""; // Limpiar el input
+  });
+
+  // Cerrar modal con el botón X
+  closeBtn?.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  // Cerrar modal con el botón cancelar
+  cancelBtn?.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  // Cerrar al hacer click fuera del modal
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      modal.style.display = "none";
+    }
+  });
+
+  // Manejar el envío del formulario
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const confirmText = deleteInput?.value.trim();
+
+    if (confirmText !== "ELIMINAR") {
+      showToast("Por favor, escribe 'ELIMINAR' para confirmar", "error");
+      return;
+    }
+
+    const submitBtn = document.getElementById("sendEmail");
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Eliminando...";
+    }
+
+    try {
+      // Aquí irá la lógica para eliminar la cuenta
+      // await deleteUserAccount();
+      showSuccessToast("Cuenta eliminada correctamente");
+      setTimeout(() => {
+        localStorage.clear();
+        sessionStorage.clear();
+        location.hash = "#/sign-in";
+      }, 1500);
+    } catch (error) {
+      console.error("Error eliminando cuenta:", error);
+      showToast("Error al eliminar la cuenta: " + (error.message || error), "error");
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Eliminar Cuenta";
+      }
+    }
+  });
 }

@@ -214,23 +214,28 @@ function createTaskCard(task) {
   const detail = task.detail || task.description || "";
 
   let dateHtml = "";
-  if (task.date) {
-  try {
-    const d = new Date(task.date);
-    if (!isNaN(d.getTime())) {
-      const dateOnly = task.date.split('T')[0]; 
-      const timeOnly = task.date.split('T')[1]?.split(':').slice(0, 2).join(':'); 
+  if (task.dueDate) {
+    try {
+      console.log('Fecha original:', task.dueDate);
+      const taskDate = new Date(task.dueDate);
       
-      const [year, month, day] = dateOnly.split('-');
+      // Formatear la fecha como dd/mm/yyyy
+      const day = String(taskDate.getDate()).padStart(2, '0');
+      const month = String(taskDate.getMonth() + 1).padStart(2, '0');
+      const year = taskDate.getFullYear();
       const dateStr = `${day}/${month}/${year}`;
-      const timeStr = timeOnly || "00:00";
       
+      // Formatear la hora como HH:mm
+      const hours = String(taskDate.getHours()).padStart(2, '0');
+      const minutes = String(taskDate.getMinutes()).padStart(2, '0');
+      const timeStr = `${hours}:${minutes}`;
+
+      console.log('Valores finales:', { dateStr, timeStr });
       dateHtml = `<div class="task-datetime">📅 ${dateStr} ⏰ ${timeStr}</div>`;
+    } catch (err) {
+      console.warn("Error processing task date:", err);
     }
-  } catch (err) {
-    console.warn("Error processing task date:", err);
   }
-}
 
   card.innerHTML = `
     <div class="task-options">

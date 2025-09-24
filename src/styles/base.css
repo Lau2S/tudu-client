@@ -828,7 +828,7 @@ a:hover {
 }
 
 #deleteTaskModal .modal-content h2 {
-    color: #dc3545;
+    color: var(--text-color);
     margin-bottom: 1rem;
 }
 
@@ -837,31 +837,53 @@ a:hover {
     margin-bottom: 1rem;
 }
 
+#editProfileModal .modal-content p,
 #deleteTaskModal .modal-content p,
 #logoutModal .modal-content p {
     font-size: 1rem;
     color: var(--text-color);
-    opacity: 0.8;
+    opacity: 0.42;
     margin-bottom: 2rem;
     line-height: 1.5;
+    align-content: center;
+    text-align: center;
 }
 
-#deleteTaskModal .buttons-modal button:last-child {
+#deleteUser .modal-content label{
+    font-size: 1rem;
+    color: var(--text-color);
+    opacity: 0.42;
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+    align-content: center;
+    text-align: center;
+
+}
+
+#deleteUser .modal-content input:focus{
+    outline: 2px solid red;
+    outline-offset: 2px;
+
+}
+
+#deleteUser .buttons-modal button:first-child,
+#deleteTaskModal .buttons-modal button:first-child {
     background-color: #dc3545;
 }
 
-#deleteTaskModal .buttons-modal button:last-child:hover {
-    background-color: #c82333;
+#deleteUser .buttons-modal button:first-child:hover,
+#deleteTaskModal .buttons-modal button:first-child:hover {
+    background-color: var(--background-color);
     border-color: #c82333;
 }
 
 #logoutModal .buttons-modal button:last-child {
-    background-color: #6c757d;
+    background-color: var(--text-color);
 }
 
 #logoutModal .buttons-modal button:last-child:hover {
-    background-color: #5a6268;
-    border-color: #5a6268;
+    background-color: var(--background-color);
+    border-color: var(--text-color);
 }
 
 .form-group textarea {
@@ -918,7 +940,6 @@ a:hover {
 .buttons-modal {
     display: flex;
     gap: 12px;
-    justify-content: flex-end;
 }
 
 .buttons-modal button {
@@ -932,21 +953,27 @@ a:hover {
 }
 
 
-.buttons-modal button:first-child {
+.buttons-modal button:last-child {
     background-color: var(--text-color);
-    flex: 0 0 100px;
+    flex: 1;
 }
 
 
-.buttons-modal button:last-child {
+.buttons-modal button:first-child {
     background-color: var(--primary-color);
     flex: 1;
 }
 
-.buttons-modal button:hover {
+.buttons-modal button:first-child:hover {
     background-color: var(--button-hover-color);
     color: var(--text-color);
     border: 1px solid var(--primary-color);
+}
+
+.buttons-modal button:last-child:hover {
+    background-color: var(--button-hover-color);
+    color: var(--text-color);
+    border: 1px solid var(--text-color);
 }
 
 /* Contenedor del perfil */
@@ -1284,6 +1311,31 @@ a:hover {
     margin-right: 10px;
 }
 
+.delete-count-container{
+    margin-top: 0.72rem;
+    text-align: center;
+
+}
+
+.delete-count-link{
+    font-size: 1rem;
+    color: var(--text-color);
+    text-decoration: none;
+    opacity: 0.6;
+    font-weight: 100;
+    cursor: pointer;
+}
+
+.modal-delete-user {
+    background: var(--background-color);
+    margin: 5% auto;
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    max-width: 450px;
+    position: relative;
+    box-shadow: var(--shadow);
+    box-sizing: border-box;
+}
 
 
 
