@@ -177,14 +177,14 @@ export async function updateUserProfile(userId, updates) {
  *   console.error("Deletion failed:", err.message);
  * }
  */
-export async function deleteUser(userId) {
-  const token = localStorage.getItem('token');
-  return http.del(`/users/${userId}`, {
-    headers: {
-      'Authorization': `Bearer ${token}`
-    }
-  });
-}
+// export async function deleteUser(userId) {
+//   const token = localStorage.getItem('token');
+//   return http.del(`/users/${userId}`, {
+//     headers: {
+//       'Authorization': `Bearer ${token}`
+//     }
+//   });
+// }
 
 /**
  * Logs out the current user by calling backend logout endpoint and clearing local storage.
@@ -319,5 +319,57 @@ export async function resetPassword(token, { password, confirmPassword }) {
     password,
     confirmPassword
   });
+}
+
+/**
+ * Validates the user's current password by attempting authentication.
+ * @async
+ * @param {string} email - User's email address
+ * @param {string} password - Password to validate
+ * @returns {Promise<boolean>} True if password is correct, false otherwise
+ * @example
+ * const isValid = await validateUserPassword("user@example.com", "currentPassword");
+ * if (isValid) {
+ *   // Proceed with sensitive operation
+ * }
+ */
+export async function validateUserPassword(email, password) {
+  try {
+    const response = await http.post('/users/auth/login', {
+      email: email,
+      password: password
+    });
+    return response && response.token;
+  } catch (error) {
+    console.log('Password validation failed:', error.message);
+    return false;
+  }
+}
+
+export async function deleteUserAccount(currentPassword) {
+  const token = localStorage.getItem('token');
+  const currentUser = getCurrentUser();
+  
+  if (!token || !currentUser) {
+    throw new Error('No hay sesión activa');
+  }
+  
+  if (!currentPassword) {
+    throw new Error('Se requiere la contraseña actual');
+  }
+  
+  const response = await http.del(`/users/me/${currentUser.userId}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    },
+    body: {
+      password: currentPassword
+    }
+  });
+  
+  localStorage.clear();
+  sessionStorage.clear();
+  
+  return response;
 }
 
