@@ -81,11 +81,11 @@
             <div class="name-row">
                 <div class="form-group">
                     <label for="taskDate">Fecha:</label>
-                    <input id="taskDate" name="taskDate" type="date" />
+                    <input id="taskDate" name="taskDate" type="date" required  required/>
                 </div>
                 <div class="form-group">
                     <label for="taskTime">Hora:</label>
-                    <input id="taskTime" name="taskTime" type="time" />
+                    <input id="taskTime" name="taskTime" type="time" required required/>
                 </div>
             </div>
 
@@ -99,8 +99,8 @@
             </div>
 
             <div class="buttons-modal">
-                <button type="button" id="cancelTaskBtn">Cancelar</button>
                 <button type="submit">Guardar</button>
+                <button type="button" id="cancelTaskBtn">Cancelar</button>
             </div>
         </form>
     </div>
@@ -144,9 +144,35 @@
             </div>
 
             <div class="buttons-modal">
-                <button type="button" id="cancelEditTaskBtn">Cancelar</button>
                 <button type="submit">Guardar Cambios</button>
+                <button type="button" id="cancelEditTaskBtn">Cancelar</button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- Modal para confirmar cierre de sesión -->
+<div id="logoutModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>Confirmar Cierre de Sesión</h2>
+        <p>¿Estás seguro de que deseas cerrar sesión?</p>
+        <div class="buttons-modal">
+            <button type="button" id="confirmLogoutBtn">Cerrar Sesión</button>
+            <button type="button" id="cancelLogoutBtn">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para eliminar tarea -->
+<div id="deleteTaskModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>Confirmar Eliminación de Tarea</h2>
+        <p>¿Estás seguro de que deseas eliminar esta tarea?</p>
+        <div class="buttons-modal">
+            <button type="button" id="confirmDeleteTaskBtn">Eliminar Tarea</button>
+            <button type="button" id="cancelDeleteTaskBtn">Cancelar</button>
+        </div>
     </div>
 </div>

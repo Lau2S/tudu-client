@@ -49,7 +49,7 @@ body {
     padding: var(--spacing);
 }
 
-.about-us{
+.about-us {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     margin-bottom: 0.6rem;
     margin-top: 0rem;
@@ -367,7 +367,7 @@ a:hover {
     font-size: 0.875rem;
 }
 
-.footer-content{
+.footer-content {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -587,6 +587,8 @@ a:hover {
     right: 10px;
     opacity: 1;
     transition: opacity 0.2s ease;
+    z-index: 10;
+    pointer-events: auto;
 }
 
 .task-card:hover .task-options {
@@ -596,12 +598,12 @@ a:hover {
 .task-menu-btn {
     background-color: transparent;
     border: none;
-    cursor: pointer;
+    cursor: pointer !important;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 18px;
-    padding: 8px 12px;
+    padding: 8px 8px;
     border-radius: 6px;
     transition: background-color 0.2s ease;
     font-weight: bold;
@@ -609,16 +611,20 @@ a:hover {
     opacity: 0.5;
     min-width: 32px;
     min-height: 32px;
+    position: relative;
+    z-index: 10;
 }
 
 .task-menu-btn:hover {
     background-color: rgba(0, 0, 0, 0.1);
     opacity: 1;
+    cursor: pointer !important;
 }
 
 .task-menu-btn:focus {
     outline: none;
     box-shadow: none;
+    cursor: pointer !important;
 }
 
 .task-dropdown-menu {
@@ -644,24 +650,71 @@ a:hover {
     opacity: 1;
 }
 
+/* Estilos para tareas en proceso de eliminación o edición */
+.task-card[data-deleting="true"] {
+    opacity: 0.5 !important;
+    pointer-events: none !important;
+    position: relative;
+}
+
+.task-card[data-deleting="true"]::before {
+    content: "Eliminando...";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(220, 53, 69, 0.9);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    z-index: 100;
+    white-space: nowrap;
+}
+
+.task-card[data-editing="true"] .task-options {
+    opacity: 0.3 !important;
+    pointer-events: none !important;
+}
+
+/* Estilos adicionales para botones de tareas */
+.task-menu-btn * {
+    cursor: pointer !important;
+    pointer-events: none;
+}
+
+.task-option-btn * {
+    cursor: pointer !important;
+    pointer-events: none;
+}
+
 .task-dropdown-item {
     padding: 10px 16px;
-    cursor: pointer;
+    cursor: pointer !important;
     transition: background-color 0.2s ease;
     display: flex;
     align-items: center;
     gap: 8px;
     font-size: 14px;
     color: var(--text-color);
+    user-select: none;
+}
+
+.task-dropdown-item * {
+    cursor: pointer !important;
+    pointer-events: none;
 }
 
 .task-dropdown-item:hover {
     background-color: #f1f3f4;
+    cursor: pointer !important;
 }
 
 .task-dropdown-item:last-child:hover {
     background-color: #fee;
     color: #dc3545;
+    cursor: pointer !important;
 }
 
 .dropdown-icon {
@@ -672,7 +725,7 @@ a:hover {
 
 .task-option-btn {
     background-color: transparent;
-    cursor: pointer;
+    cursor: pointer !important;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -680,16 +733,19 @@ a:hover {
     padding: 4px;
     border-radius: 4px;
     transition: background-color 0.2s ease;
+    border: none;
 }
 
 .task-option-btn:hover {
     background-color: rgba(0, 0, 0, 0.1);
     border: none;
+    cursor: pointer !important;
 }
 
 .task-option-btn:focus {
     outline: none;
     box-shadow: none;
+    cursor: pointer !important;
 }
 
 /* Dark mode adjustments */
@@ -764,6 +820,72 @@ a:hover {
     display: flex !important;
 }
 
+/* Estilos específicos para modales de confirmación */
+#deleteTaskModal .modal-content,
+#logoutModal .modal-content {
+    max-width: 400px;
+    text-align: center;
+}
+
+#deleteTaskModal .modal-content h2 {
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+#logoutModal .modal-content h2 {
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+#editProfileModal .modal-content p,
+#deleteTaskModal .modal-content p,
+#logoutModal .modal-content p {
+    font-size: 1rem;
+    color: var(--text-color);
+    opacity: 0.42;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+    align-content: center;
+    text-align: center;
+}
+
+#deleteUser .modal-content label{
+    font-size: 1rem;
+    color: var(--text-color);
+    opacity: 0.42;
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+    align-content: center;
+    text-align: center;
+
+}
+
+#deleteUser .modal-content input:focus{
+    outline: 2px solid red;
+    outline-offset: 2px;
+
+}
+
+#deleteUser .buttons-modal button:first-child,
+#deleteTaskModal .buttons-modal button:first-child {
+    background-color: #dc3545;
+}
+
+#deleteUser .buttons-modal button:first-child:hover,
+#deleteTaskModal .buttons-modal button:first-child:hover {
+    background-color: var(--background-color);
+    border-color: #c82333;
+}
+
+#logoutModal .buttons-modal button:last-child {
+    background-color: var(--text-color);
+}
+
+#logoutModal .buttons-modal button:last-child:hover {
+    background-color: var(--background-color);
+    border-color: var(--text-color);
+}
+
 .form-group textarea {
     resize: vertical;
     min-height: 80px;
@@ -818,7 +940,6 @@ a:hover {
 .buttons-modal {
     display: flex;
     gap: 12px;
-    justify-content: flex-end;
 }
 
 .buttons-modal button {
@@ -832,21 +953,27 @@ a:hover {
 }
 
 
-.buttons-modal button:first-child {
+.buttons-modal button:last-child {
     background-color: var(--text-color);
-    flex: 0 0 100px;
+    flex: 1;
 }
 
 
-.buttons-modal button:last-child {
+.buttons-modal button:first-child {
     background-color: var(--primary-color);
     flex: 1;
 }
 
-.buttons-modal button:hover {
+.buttons-modal button:first-child:hover {
     background-color: var(--button-hover-color);
     color: var(--text-color);
     border: 1px solid var(--primary-color);
+}
+
+.buttons-modal button:last-child:hover {
+    background-color: var(--button-hover-color);
+    color: var(--text-color);
+    border: 1px solid var(--text-color);
 }
 
 /* Contenedor del perfil */
@@ -1139,11 +1266,11 @@ a:hover {
     text-align: center;
 }
 
-.profile-header{
+.profile-header {
     border-top: 2px solid #e9ebec;
 }
 
-.profile-header p{
+.profile-header p {
     font-size: 1rem;
     color: var(--text-color);
     opacity: 0.42;
@@ -1184,7 +1311,57 @@ a:hover {
     margin-right: 10px;
 }
 
+/* .delete-count-container{
+    margin-top: 0.72rem;
+    text-align: center;
 
+}
+
+.delete-count-link{
+    font-size: 1rem;
+    color: var(--text-color);
+    text-decoration: none;
+    opacity: 0.6;
+    font-weight: 100;
+    cursor: pointer;
+}
+
+.modal-delete-user {
+    background: var(--background-color);
+    margin: 5% auto;
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    max-width: 450px;
+    position: relative;
+    box-shadow: var(--shadow);
+    box-sizing: border-box;
+} */
+
+.delete-count-container {
+  margin-top: 2rem;
+  text-align: center;
+  padding-top: 2rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.delete-count-link {
+  color: #dc3545;
+  text-decoration: none;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.delete-count-link:hover {
+  color: #c82333;
+  text-decoration: underline;
+}
+
+.delete-count-link::before {
+  content: "⚠️ ";
+  margin-right: 0.5rem;
+}
 
 
 @media (prefers-color-scheme: dark) {
@@ -1229,6 +1406,26 @@ a:hover {
     .sitemap-title {
         color: #f5f5f5;
     }
+
+    /* Modales de confirmación en modo oscuro */
+    #deleteTaskModal .modal-content,
+    #logoutModal .modal-content {
+        background-color: #1e1e1e;
+        border: 1px solid #333;
+    }
+
+    #deleteTaskModal .modal-content h2 {
+        color: #ff6b6b;
+    }
+
+    #logoutModal .modal-content h2 {
+        color: #f5f5f5;
+    }
+
+    #deleteTaskModal .modal-content p,
+    #logoutModal .modal-content p {
+        color: #e0e0e0;
+    }
 }
 
 
@@ -1239,14 +1436,14 @@ a:hover {
     }
 
     .profile-card {
-        margin: 1rem; 
-        padding: 1rem; 
+        margin: 1rem;
+        padding: 1rem;
         max-width: none;
         width: calc(100% - 4rem);
         box-shadow: 0 4px 16px var(--border-color);
         border-radius: 8px;
     }
-    
+
     .registration-card {
         padding: 1rem;
         margin: 1rem;
@@ -1259,11 +1456,11 @@ a:hover {
         width: 100%;
         gap: 0.5rem;
     }
-    
+
     .btn {
-        font-size: 10px; 
-        padding: 0.5rem 1rem; 
-        width: 100%; 
+        font-size: 10px;
+        padding: 0.5rem 1rem;
+        width: 100%;
         flex: 1;
         text-align: center;
         min-width: auto;
@@ -1273,11 +1470,11 @@ a:hover {
         flex-direction: column;
         gap: 0.5rem;
     }
-    
+
     .footer-nav {
         justify-content: center;
         flex-direction: row;
         gap: 1rem;
     }
-    
+
 }
