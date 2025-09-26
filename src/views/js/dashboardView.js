@@ -216,27 +216,29 @@ function createTaskCard(task) {
   let dateHtml = "";
   if (task.dueDate) {
     try {
-      console.log('Fecha original:', task.dueDate);
       const taskDate = new Date(task.dueDate);
       
-      // Formatear la fecha como dd/mm/yyyy
-      const day = String(taskDate.getDate()).padStart(2, '0');
-      const month = String(taskDate.getMonth() + 1).padStart(2, '0');
-      const year = taskDate.getFullYear();
-      const dateStr = `${day}/${month}/${year}`;
-      
-      // Formatear la hora como HH:mm
-      const hours = String(taskDate.getHours()).padStart(2, '0');
-      const minutes = String(taskDate.getMinutes()).padStart(2, '0');
-      const timeStr = `${hours}:${minutes}`;
+     if (!isNaN(taskDate.getTime())) {
+        // Obtener fecha y hora en zona horaria local
+        const day = String(taskDate.getDate()).padStart(2, '0');
+        const month = String(taskDate.getMonth() + 1).padStart(2, '0');
+        const year = taskDate.getFullYear();
+        const dateStr = `${day}/${month}/${year}`;
+        
+        // Obtener horas y minutos en zona horaria local
+        const hours = String(taskDate.getHours()).padStart(2, '0');
+        const minutes = String(taskDate.getMinutes()).padStart(2, '0');
+        const timeStr = `${hours}:${minutes}`;
 
-      console.log('Valores finales:', { dateStr, timeStr });
-      dateHtml = `<div class="task-datetime">📅 ${dateStr} ⏰ ${timeStr}</div>`;
+        console.log('Fecha formateada:', { dateStr, timeStr, originalDate: taskDate.toString() });
+        dateHtml = `<div class="task-datetime">📅 ${dateStr} ⏰ ${timeStr}</div>`;
+      } else {
+        console.warn("Fecha inválida:", task.dueDate);
+      }
     } catch (err) {
       console.warn("Error processing task date:", err);
     }
   }
-
   card.innerHTML = `
     <div class="task-options">
       <button class="task-menu-btn" title="Opciones">⋮</button>
@@ -316,6 +318,89 @@ function initUserDropdown() {
  * Initializes the create task modal.
  * @private
  */
+// function initCreateTaskModal() {
+//   const openBtn = document.querySelector(".create-task-btn");
+//   const modal = document.getElementById("createTask");
+//   const closeBtn = modal?.querySelector(".close-modal");
+//   const form = document.getElementById("createTaskForm");
+//   const cancelBtn = document.getElementById("cancelTaskBtn");
+
+//   if (!openBtn || !modal || !form) {
+//     console.warn("Create task modal elements not found");
+//     return;
+//   }
+
+//   openBtn.addEventListener("click", () => {
+//     modal.style.display = "block";
+//     form.reset();
+//   });
+
+//   closeBtn?.addEventListener("click", () => (modal.style.display = "none"));
+//   cancelBtn?.addEventListener("click", () => (modal.style.display = "none"));
+
+//   modal.addEventListener("click", (e) => {
+//     if (e.target === modal) modal.style.display = "none";
+//   });
+
+//   form.addEventListener("submit", async (e) => {
+//     e.preventDefault();
+//     const submitBtn = form.querySelector('button[type="submit"]');
+
+//     // Verificar si ya se está procesando
+//     if (submitBtn.disabled) {
+//       return;
+//     }
+
+//     const originalText = submitBtn.textContent;
+//     submitBtn.disabled = true;
+//     submitBtn.textContent = "Guardando...";
+
+//     // Deshabilitar también el botón de cancelar
+//     if (cancelBtn) {
+//       cancelBtn.disabled = true;
+//     }
+
+//     try {
+//       const data = new FormData(form);
+//       const currentUser = getCurrentUser();
+
+//       if (!currentUser?.email) {
+//         throw new Error("Usuario no autenticado");
+//       }
+
+//       const taskData = {
+//         title: data.get("taskTitle")?.trim() || "",
+//         detail: data.get("taskDesc")?.trim() || "",
+//         status: data.get("taskStatus") || "pending",
+//         dueDate: data.get("taskDate")
+//           ? `${data.get("taskDate")}T${data.get("taskTime") || "00:00"}:00`
+//           : null,
+//         user_email: currentUser.email,
+//       };
+
+//       if (!taskData.title) {
+//         throw new Error("El título de la tarea es obligatorio");
+//       }
+
+//       console.log("Creando tarea:", taskData);
+//       await createTask(taskData);
+//       await loadTasksFromBackend();
+//       modal.style.display = "none";
+//       form.reset();
+//       showToast("✅ Tarea creada exitosamente", "success");
+//     } catch (err) {
+//       console.error("Error creando tarea:", err);
+//       showToast("❌ Error al crear tarea: " + (err.message || err), "error");
+//     } finally {
+//       submitBtn.disabled = false;
+//       submitBtn.textContent = originalText;
+//       if (cancelBtn) {
+//         cancelBtn.disabled = false;
+//       }
+//     }
+//   });
+// }
+
 function initCreateTaskModal() {
   const openBtn = document.querySelector(".create-task-btn");
   const modal = document.getElementById("createTask");
@@ -331,6 +416,29 @@ function initCreateTaskModal() {
   openBtn.addEventListener("click", () => {
     modal.style.display = "block";
     form.reset();
+    
+    // Establecer fecha mínima como hoy
+    const dateInput = document.getElementById("taskDate");
+    const timeInput = document.getElementById("taskTime");
+    
+    if (dateInput) {
+      const today = new Date();
+      const todayStr = today.toISOString().split('T')[0];
+      dateInput.min = todayStr;
+      
+      // Si no hay fecha seleccionada, usar hoy
+      if (!dateInput.value) {
+        dateInput.value = todayStr;
+      }
+    }
+    
+    // Establecer hora por defecto si no hay ninguna
+    if (timeInput && !timeInput.value) {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      timeInput.value = `${hours}:${minutes}`;
+    }
   });
 
   closeBtn?.addEventListener("click", () => (modal.style.display = "none"));
@@ -344,19 +452,13 @@ function initCreateTaskModal() {
     e.preventDefault();
     const submitBtn = form.querySelector('button[type="submit"]');
 
-    // Verificar si ya se está procesando
-    if (submitBtn.disabled) {
-      return;
-    }
+    if (submitBtn.disabled) return;
 
     const originalText = submitBtn.textContent;
     submitBtn.disabled = true;
     submitBtn.textContent = "Guardando...";
-
-    // Deshabilitar también el botón de cancelar
-    if (cancelBtn) {
-      cancelBtn.disabled = true;
-    }
+    
+    if (cancelBtn) cancelBtn.disabled = true;
 
     try {
       const data = new FormData(form);
@@ -366,13 +468,23 @@ function initCreateTaskModal() {
         throw new Error("Usuario no autenticado");
       }
 
+      const taskDate = data.get("taskDate");
+      const taskTime = data.get("taskTime");
+      
+      let dueDate = null;
+      if (taskDate) {
+        // Crear fecha en zona horaria local
+        const dateTimeStr = `${taskDate}T${taskTime || "12:00"}:00`;
+        dueDate = dateTimeStr;
+        
+        console.log('Creando tarea con fecha:', { taskDate, taskTime, dueDate });
+      }
+
       const taskData = {
         title: data.get("taskTitle")?.trim() || "",
         detail: data.get("taskDesc")?.trim() || "",
         status: data.get("taskStatus") || "pending",
-        dueDate: data.get("taskDate")
-          ? `${data.get("taskDate")}T${data.get("taskTime") || "00:00"}:00`
-          : null,
+        dueDate: dueDate,
         user_email: currentUser.email,
       };
 
@@ -392,9 +504,7 @@ function initCreateTaskModal() {
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = originalText;
-      if (cancelBtn) {
-        cancelBtn.disabled = false;
-      }
+      if (cancelBtn) cancelBtn.disabled = false;
     }
   });
 }
