@@ -61,10 +61,22 @@ export async function getTasks() {
  */
 export async function createTask({ title, detail, dueDate, status }) {
   const token = localStorage.getItem("token");
+
+  let formattedDate = null;
+  if (dueDate) {
+    // Si dueDate ya incluye tiempo, usarlo directamente
+    if (dueDate.includes('T')) {
+      formattedDate = dueDate;
+    } else {
+      // Si solo es fecha, agregar hora por defecto
+      formattedDate = `${dueDate}T12:00:00.000Z`;
+    }
+  }
+  
   const taskPayload = {
     title,
     detail,
-    date: dueDate,
+    date: formattedDate,
     state: mapStatus(status),
   };
   return http.post("/tasks", taskPayload, {
@@ -95,11 +107,16 @@ export async function createTask({ title, detail, dueDate, status }) {
 export async function updateTask(taskId, updates) {
   const token = localStorage.getItem("token");
 
+  let formattedDate = updates.date;
+  if (updates.date && !updates.date.includes('T')) {
+    formattedDate = `${updates.date}T12:00:00.000Z`;
+  }
+
   // Ensure we're sending the correct structure to the backend
   const payload = {
     title: updates.title,
     detail: updates.detail,
-    date: updates.date,
+    date: formattedDate,
     state: updates.state
   };
 
@@ -211,7 +228,7 @@ function mapStatus(status) {
  */
 function mapState(state) {
   switch (state) {
-    case "Por hacer":
+    case "Por Hacer":
       return "todo";
     case "Haciendo":
       return "progress";
